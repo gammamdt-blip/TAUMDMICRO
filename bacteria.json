@@ -1,0 +1,725 @@
+{
+  "schema": "taumd-tree/1",
+  "meta": {
+    "id": "bacteria",
+    "title": "Bacteria",
+    "subtitle": "High-yield microbiology taxonomy for USMLE Step 1",
+    "icon": "bacteria",
+    "accent": "#5b2c83",
+    "order": 1,
+    "source": "USMLE_Bacteria_Tree.html"
+  },
+  "legend": [
+    {
+      "title": "Legend and high-yield guide",
+      "items": [
+        {
+          "swatch": "#6b21a8",
+          "text": "Gram-positive: thick peptidoglycan"
+        },
+        {
+          "swatch": "#be123c",
+          "text": "Gram-negative: thin peptidoglycan plus outer membrane"
+        },
+        {
+          "swatch": "#0f766e",
+          "text": "Stains poorly: acid-fast, spirochetes, intracellular, no cell wall"
+        },
+        {
+          "badge": "Optochin Sens",
+          "tone": "sens",
+          "text": "Sensitive to the antibiotic"
+        },
+        {
+          "badge": "Bacitracin Res",
+          "tone": "res",
+          "text": "Resistant to the antibiotic"
+        }
+      ]
+    }
+  ],
+  "tree": [
+    {
+      "id": "gpos",
+      "name": "Gram-Positive",
+      "type": "root",
+      "color": "#6b21a8",
+      "badges": [
+        "Stains Purple/Blue",
+        "Thick Peptidoglycan"
+      ],
+      "children": [
+        {
+          "id": "gpos-cocci",
+          "name": "Cocci (Spheres)",
+          "type": "category",
+          "children": [
+            {
+              "id": "staph",
+              "name": "Catalase Positive (Clusters) - Staphylococcus",
+              "type": "branch",
+              "badges": [
+                "Catalase +"
+              ],
+              "children": [
+                {
+                  "id": "s-aureus",
+                  "name": "Staphylococcus aureus",
+                  "type": "species",
+                  "badges": [
+                    "Coagulase +",
+                    "β-hemolytic",
+                    "Protein A"
+                  ],
+                  "notes": "Toxic shock syndrome, food poisoning (preformed toxin), MRSA, endocarditis, osteomyelitis."
+                },
+                {
+                  "id": "coag-neg-staph",
+                  "name": "Coagulase Negative",
+                  "type": "branch",
+                  "badges": [
+                    "Coagulase -"
+                  ],
+                  "children": [
+                    {
+                      "id": "s-epi",
+                      "name": "Staphylococcus epidermidis",
+                      "type": "species",
+                      "badges": [
+                        "Novobiocin Sensitive",
+                        "Urease +"
+                      ],
+                      "notes": "Prosthetic devices, IV catheters, biofilms. Normal skin flora."
+                    },
+                    {
+                      "id": "s-sapro",
+                      "name": "Staphylococcus saprophyticus",
+                      "type": "species",
+                      "badges": [
+                        "Novobiocin Resistant",
+                        "Urease +"
+                      ],
+                      "notes": "UTI in young, sexually active females."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "strep",
+              "name": "Catalase Negative (Chains/Pairs) - Streptococcus & Enterococcus",
+              "type": "branch",
+              "badges": [
+                "Catalase -"
+              ],
+              "children": [
+                {
+                  "id": "alpha-hem",
+                  "name": "α-hemolytic (Partial/Green)",
+                  "type": "branch",
+                  "children": [
+                    {
+                      "id": "s-pneumo",
+                      "name": "Streptococcus pneumoniae",
+                      "type": "species",
+                      "badges": [
+                        "Optochin Sensitive",
+                        "Bile Soluble",
+                        "Capsule",
+                        "IgA protease"
+                      ],
+                      "notes": "MOPS: Meningitis, Otitis media, Pneumonia, Sinusitis. Rusty sputum. Lancet-shaped diplococci."
+                    },
+                    {
+                      "id": "viridans",
+                      "name": "Viridans group streptococci",
+                      "type": "species",
+                      "badges": [
+                        "Optochin Resistant",
+                        "Bile Insoluble",
+                        "No Capsule"
+                      ],
+                      "notes": "S. mutans/mitis (dental caries), S. sanguinis (subacute endocarditis at damaged valves)."
+                    }
+                  ]
+                },
+                {
+                  "id": "beta-hem",
+                  "name": "β-hemolytic (Complete/Clear)",
+                  "type": "branch",
+                  "children": [
+                    {
+                      "id": "s-pyogenes",
+                      "name": "Streptococcus pyogenes (Group A)",
+                      "type": "species",
+                      "badges": [
+                        "Bacitracin Sensitive",
+                        "PYR +"
+                      ],
+                      "notes": "Pharyngitis, Cellulitis, Impetigo. Toxins: Scarlet fever, TSLS, Necrotizing fasciitis. Immune: Rheumatic fever, PSGN."
+                    },
+                    {
+                      "id": "s-agalactiae",
+                      "name": "Streptococcus agalactiae (Group B)",
+                      "type": "species",
+                      "badges": [
+                        "Bacitracin Resistant",
+                        "CAMP +",
+                        "Hippurate +"
+                      ],
+                      "notes": "Neonatal meningitis, pneumonia, sepsis. Screen pregnant women at 35-37 wks (prophylactic penicillin)."
+                    }
+                  ]
+                },
+                {
+                  "id": "gamma-hem",
+                  "name": "γ-hemolytic (None)",
+                  "type": "branch",
+                  "children": [
+                    {
+                      "id": "enterococcus",
+                      "name": "Enterococcus (E. faecalis, E. faecium)",
+                      "type": "species",
+                      "badges": [
+                        "Grows in 6.5% NaCl",
+                        "PYR +"
+                      ],
+                      "notes": "UTI, biliary tract infections, subacute endocarditis. VRE (Vancomycin Resistant Enterococci) is a major nosocomial threat."
+                    },
+                    {
+                      "id": "s-bovis",
+                      "name": "Streptococcus bovis (Group D)",
+                      "type": "species",
+                      "badges": [
+                        "Grows in bile",
+                        "No growth in 6.5% NaCl"
+                      ],
+                      "notes": "Bacteremia/endocarditis strongly associated with COLON CANCER."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "gpos-bacilli",
+          "name": "Bacilli (Rods)",
+          "type": "category",
+          "children": [
+            {
+              "id": "spore-forming",
+              "name": "Spore-Forming",
+              "type": "branch",
+              "children": [
+                {
+                  "id": "bacillus",
+                  "name": "Bacillus (Aerobic)",
+                  "type": "branch",
+                  "children": [
+                    {
+                      "id": "b-anthracis",
+                      "name": "Bacillus anthracis",
+                      "type": "species",
+                      "badges": [
+                        "Polypeptide capsule (poly-D-glutamate)"
+                      ],
+                      "notes": "Anthrax (cutaneous black eschar, pulmonary woolsorter's disease). Edema factor, Lethal factor."
+                    },
+                    {
+                      "id": "b-cereus",
+                      "name": "Bacillus cereus",
+                      "type": "species",
+                      "notes": "Food poisoning (reheated rice syndrome). Emetic toxin (cereulide)."
+                    }
+                  ]
+                },
+                {
+                  "id": "clostridium",
+                  "name": "Clostridium (Anaerobic)",
+                  "type": "branch",
+                  "children": [
+                    {
+                      "id": "c-tetani",
+                      "name": "Clostridium tetani",
+                      "type": "species",
+                      "notes": "Tetanus (spastic paralysis, trismus/lockjaw, risus sardonicus). Tetanospasmin cleaves SNARE proteins (inhibits GABA/Glycine release)."
+                    },
+                    {
+                      "id": "c-botulinum",
+                      "name": "Clostridium botulinum",
+                      "type": "species",
+                      "notes": "Botulism (flaccid paralysis, floppy baby syndrome via honey). Cleaves SNARE (inhibits ACh release)."
+                    },
+                    {
+                      "id": "c-perfringens",
+                      "name": "Clostridium perfringens",
+                      "type": "species",
+                      "badges": [
+                        "Alpha toxin (lecithinase)"
+                      ],
+                      "notes": "Gas gangrene (myonecrosis), late-onset food poisoning."
+                    },
+                    {
+                      "id": "c-difficile",
+                      "name": "Clostridioides difficile",
+                      "type": "species",
+                      "badges": [
+                        "Toxin A (brush border)",
+                        "Toxin B (cytotoxin)"
+                      ],
+                      "notes": "Pseudomembranous colitis secondary to abx use (clindamycin, ampicillin). Rx: Oral vancomycin, fidaxomicin."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "non-spore",
+              "name": "Non-Spore-Forming",
+              "type": "branch",
+              "children": [
+                {
+                  "id": "c-diphtheriae",
+                  "name": "Corynebacterium diphtheriae",
+                  "type": "species",
+                  "badges": [
+                    "Club-shaped",
+                    "V or Y configuration",
+                    "Elek test +"
+                  ],
+                  "notes": "Diphtheria (pseudomembranous pharyngitis, myocarditis, arrhythmias). Diphtheria toxin inhibits EF-2 via ADP-ribosylation."
+                },
+                {
+                  "id": "l-monocytogenes",
+                  "name": "Listeria monocytogenes",
+                  "type": "species",
+                  "badges": [
+                    "Tumbling motility",
+                    "Intracellular (actin rockets)",
+                    "Cold growth"
+                  ],
+                  "notes": "Meningitis in neonates, immunocompromised, elderly. Ingestion of unpasteurized dairy/cold deli meats. Amnionitis."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "gpos-branching",
+          "name": "Branching Filaments",
+          "type": "category",
+          "children": [
+            {
+              "id": "actinomyces",
+              "name": "Actinomyces israelii",
+              "type": "species",
+              "badges": [
+                "Anaerobic",
+                "Not acid-fast"
+              ],
+              "notes": "Oral/facial abscesses draining through sinus tracts with YELLOW SULFUR GRANULES. Normal oral flora. Rx: Penicillin."
+            },
+            {
+              "id": "nocardia",
+              "name": "Nocardia",
+              "type": "species",
+              "badges": [
+                "Aerobic",
+                "Weakly acid-fast"
+              ],
+              "notes": "Pulmonary infections in immunocompromised (mimics TB), cutaneous infections after trauma. Found in soil. Rx: Sulfonamides (TMP-SMX)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "gneg",
+      "name": "Gram-Negative",
+      "type": "root",
+      "color": "#be123c",
+      "badges": [
+        "Stains Pink/Red",
+        "Thin Peptidoglycan + LPS/LOS"
+      ],
+      "children": [
+        {
+          "id": "gneg-cocci",
+          "name": "Cocci (Spheres)",
+          "type": "category",
+          "children": [
+            {
+              "id": "neisseria",
+              "name": "Neisseria (Diplococci)",
+              "type": "branch",
+              "badges": [
+                "Oxidase +",
+                "Thayer-Martin agar"
+              ],
+              "children": [
+                {
+                  "id": "n-meningitidis",
+                  "name": "Neisseria meningitidis",
+                  "type": "species",
+                  "badges": [
+                    "Maltose Fermenter",
+                    "Capsule",
+                    "LOS"
+                  ],
+                  "notes": "Meningococcemia, meningitis, Waterhouse-Friderichsen syndrome (adrenal hemorrhage). Vaccine available (except type B)."
+                },
+                {
+                  "id": "n-gonorrhoeae",
+                  "name": "Neisseria gonorrhoeae",
+                  "type": "species",
+                  "badges": [
+                    "Maltose Non-Fermenter",
+                    "No Capsule",
+                    "Intracellular (neutrophils)"
+                  ],
+                  "notes": "Gonorrhea, PID, Fitz-Hugh-Curtis syndrome, neonatal conjunctivitis, septic arthritis. High antigenic variation of pili."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "gneg-coccobacilli",
+          "name": "Coccobacilli",
+          "type": "category",
+          "children": [
+            {
+              "id": "h-flu",
+              "name": "Haemophilus influenzae",
+              "type": "species",
+              "badges": [
+                "Requires Factor V (NAD+) & X (hematin)",
+                "Chocolate agar"
+              ],
+              "notes": "Epiglottitis (cherry red), Meningitis, Otitis media, Pneumonia. Vaccine is against Type b (capsular PRP conjugated to protein)."
+            },
+            {
+              "id": "b-pertussis",
+              "name": "Bordetella pertussis",
+              "type": "species",
+              "badges": [
+                "Bordet-Gengou agar",
+                "Regan-Lowe medium"
+              ],
+              "notes": "Whooping cough. Pertussis toxin overactivates adenylate cyclase (disables Gi). Tracheal cytotoxin damages ciliated epithelium."
+            },
+            {
+              "id": "pasteurella",
+              "name": "Pasteurella multocida",
+              "type": "species",
+              "badges": [
+                "Catalase +",
+                "Oxidase +"
+              ],
+              "notes": "Cellulitis, osteomyelitis following DOG or CAT bite. Mouse-like odor."
+            },
+            {
+              "id": "brucella",
+              "name": "Brucella",
+              "type": "species",
+              "badges": [
+                "Intracellular",
+                "Aerobic"
+              ],
+              "notes": "Brucellosis (Undulant fever, night sweats). Exposure to infected animals or unpasteurized dairy (cow/pig/sheep/goat)."
+            }
+          ]
+        },
+        {
+          "id": "gneg-bacilli",
+          "name": "Bacilli (Rods)",
+          "type": "category",
+          "children": [
+            {
+              "id": "lactose-fermenters",
+              "name": "Lactose Fermenters (MacConkey agar: Pink)",
+              "type": "branch",
+              "badges": [
+                "Ferments Lactose"
+              ],
+              "children": [
+                {
+                  "id": "fast-fermenters",
+                  "name": "Fast Fermenters",
+                  "type": "branch",
+                  "children": [
+                    {
+                      "id": "klebsiella",
+                      "name": "Klebsiella pneumoniae",
+                      "type": "species",
+                      "badges": [
+                        "Large Capsule",
+                        "Mucoid colonies",
+                        "Urease +"
+                      ],
+                      "notes": "Lobar pneumonia in alcoholics/diabetics. 'Currant jelly' sputum. Nosocomial UTIs."
+                    },
+                    {
+                      "id": "e-coli",
+                      "name": "Escherichia coli",
+                      "type": "species",
+                      "badges": [
+                        "Indole +",
+                        "Green metallic sheen on EMB"
+                      ],
+                      "notes": "EIEC, ETEC (traveler's diarrhea), EPEC (pediatric), EHEC (O157:H7, HUS, Shiga-like toxin, no sorbitol fermentation). UTI, neonatal meningitis."
+                    },
+                    {
+                      "id": "enterobacter",
+                      "name": "Enterobacter",
+                      "type": "species",
+                      "notes": "Motile. Normal intestinal flora, causes nosocomial infections (UTI, pneumonia). Highly drug resistant."
+                    }
+                  ]
+                },
+                {
+                  "id": "slow-fermenters",
+                  "name": "Slow Fermenters",
+                  "type": "branch",
+                  "children": [
+                    {
+                      "id": "citrobacter",
+                      "name": "Citrobacter",
+                      "type": "species"
+                    },
+                    {
+                      "id": "serratia",
+                      "name": "Serratia marcescens",
+                      "type": "species",
+                      "badges": [
+                        "Red pigment at room temp"
+                      ],
+                      "notes": "Nosocomial infections."
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "lactose-nonfermenters",
+              "name": "Lactose Non-Fermenters (MacConkey agar: White/Colorless)",
+              "type": "branch",
+              "badges": [
+                "Does NOT Ferment Lactose"
+              ],
+              "children": [
+                {
+                  "id": "ox-pos",
+                  "name": "Oxidase Positive",
+                  "type": "branch",
+                  "children": [
+                    {
+                      "id": "pseudomonas",
+                      "name": "Pseudomonas aeruginosa",
+                      "type": "species",
+                      "badges": [
+                        "Grape-like odor",
+                        "Blue-green pigment (pyocyanin)",
+                        "Aerobic"
+                      ],
+                      "notes": "PSEUDO: Pneumonia (CF, ventilated), Sepsis, Ecthyma gangrenosum, UTIs, Diabetes/Drug use, Osteomyelitis, Otitis externa (swimmer's ear)."
+                    },
+                    {
+                      "id": "campylobacter",
+                      "name": "Campylobacter jejuni",
+                      "type": "species",
+                      "badges": [
+                        "Comma/S-shaped",
+                        "Grows at 42°C (hot campfire)"
+                      ],
+                      "notes": "Bloody diarrhea (poultry/meat/milk). Antecedent to Guillain-Barré syndrome and Reactive arthritis."
+                    },
+                    {
+                      "id": "vibrio",
+                      "name": "Vibrio cholerae",
+                      "type": "species",
+                      "badges": [
+                        "Comma-shaped",
+                        "Grows in alkaline media"
+                      ],
+                      "notes": "Cholera (profuse rice-water diarrhea). Cholera toxin overactivates adenylate cyclase (Gs) by ADP ribosylation. Rx: Oral rehydration."
+                    },
+                    {
+                      "id": "helicobacter",
+                      "name": "Helicobacter pylori",
+                      "type": "species",
+                      "badges": [
+                        "Curved rod",
+                        "Urease +++ (breath test)"
+                      ],
+                      "notes": "Peptic ulcer disease (duodenal > gastric), gastric adenocarcinoma, MALT lymphoma. Rx: Triple therapy (PPI + clarithromycin + amoxicillin/metronidazole)."
+                    }
+                  ]
+                },
+                {
+                  "id": "ox-neg",
+                  "name": "Oxidase Negative",
+                  "type": "branch",
+                  "children": [
+                    {
+                      "id": "shigella",
+                      "name": "Shigella",
+                      "type": "species",
+                      "badges": [
+                        "Non-motile",
+                        "No H2S production"
+                      ],
+                      "notes": "Bloody diarrhea (bacillary dysentery). Invades M cells. Shiga toxin (cleaves host cell rRNA). Very low infectious dose."
+                    },
+                    {
+                      "id": "salmonella-typhi",
+                      "name": "Salmonella Typhi",
+                      "type": "species",
+                      "badges": [
+                        "Motile",
+                        "H2S production",
+                        "Capsule (Vi antigen)"
+                      ],
+                      "notes": "Typhoid fever: rose spots on abdomen, constipation followed by diarrhea, fever. Carrier state in gallbladder."
+                    },
+                    {
+                      "id": "salmonella-spp",
+                      "name": "Salmonella spp. (non-typhoidal)",
+                      "type": "species",
+                      "badges": [
+                        "Motile",
+                        "H2S production"
+                      ],
+                      "notes": "Poultry, eggs, pets (turtles). Gastroenteritis. Osteomyelitis in sickle cell disease patients."
+                    },
+                    {
+                      "id": "proteus",
+                      "name": "Proteus mirabilis",
+                      "type": "species",
+                      "badges": [
+                        "Swarming motility",
+                        "Urease +"
+                      ],
+                      "notes": "UTIs. Urease produces ammonia, raising urine pH and precipitating struvite (staghorn) calculi."
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "other",
+      "name": "Others (Poorly Gram Staining)",
+      "type": "root",
+      "color": "#0f766e",
+      "badges": [
+        "Do not Gram stain well"
+      ],
+      "children": [
+        {
+          "id": "mycobacteria",
+          "name": "Mycobacteria (Acid-Fast)",
+          "type": "branch",
+          "children": [
+            {
+              "id": "m-tb",
+              "name": "Mycobacterium tuberculosis",
+              "type": "species",
+              "badges": [
+                "Acid-fast",
+                "Mycolic acids",
+                "Cord factor"
+              ],
+              "notes": "TB (fever, night sweats, weight loss, hemoptysis). Caseating granulomas. Primary (Ghon complex), Secondary (apical). Rx: RIPE therapy."
+            },
+            {
+              "id": "m-leprae",
+              "name": "Mycobacterium leprae",
+              "type": "species",
+              "badges": [
+                "Armadillos (reservoir)"
+              ],
+              "notes": "Leprosy (Hansen disease). Tuberculoid (Th1 response, localized), Lepromatous (Th2 response, widespread, lion-like facies)."
+            }
+          ]
+        },
+        {
+          "id": "spirochetes",
+          "name": "Spirochetes (Spiral)",
+          "type": "branch",
+          "children": [
+            {
+              "id": "treponema",
+              "name": "Treponema pallidum",
+              "type": "species",
+              "badges": [
+                "Dark-field microscopy",
+                "VDRL/RPR (screening)",
+                "FTA-ABS (confirmatory)"
+              ],
+              "notes": "Syphilis. 1° (painless chancre), 2° (maculopapular rash on palms/soles, condylomata lata), 3° (gummas, aortitis, neurosyphilis, Argyll Robertson pupil)."
+            },
+            {
+              "id": "borrelia",
+              "name": "Borrelia burgdorferi",
+              "type": "species",
+              "badges": [
+                "Wright/Giemsa stain",
+                "Ixodes tick (vector)"
+              ],
+              "notes": "Lyme disease. Stage 1: Erythema migrans (bullseye rash), flu-like. Stage 2: AV block, Bell palsy. Stage 3: Chronic arthritis, encephalopathy."
+            }
+          ]
+        },
+        {
+          "id": "intracellular",
+          "name": "Obligate Intracellular",
+          "type": "branch",
+          "children": [
+            {
+              "id": "chlamydia",
+              "name": "Chlamydia trachomatis",
+              "type": "species",
+              "badges": [
+                "No peptidoglycan (lacks muramic acid)",
+                "Elementary/Reticulate bodies"
+              ],
+              "notes": "Serotypes D-K: Urethritis/PID, neonatal pneumonia (staccato cough) & conjunctivitis. Types L1-L3: Lymphogranuloma venereum (buboes). Types A-C: Trachoma (blindness)."
+            },
+            {
+              "id": "rickettsia",
+              "name": "Rickettsia rickettsii",
+              "type": "species",
+              "badges": [
+                "Dermacentor tick (vector)"
+              ],
+              "notes": "Rocky Mountain spotted fever. Triad: headache, fever, rash (starts at WRISTS/ANKLES and spreads to trunk, palms, soles)."
+            }
+          ]
+        },
+        {
+          "id": "mycoplasma",
+          "name": "No Cell Wall",
+          "type": "branch",
+          "children": [
+            {
+              "id": "m-pneumo",
+              "name": "Mycoplasma pneumoniae",
+              "type": "species",
+              "badges": [
+                "No cell wall (no Gram stain)",
+                "Cholesterol in membrane",
+                "Eaton agar"
+              ],
+              "notes": "Atypical 'walking' pneumonia. High titer of cold agglutinins (IgM). Frequent in young adults/military recruits. Rx: Macrolides, doxycycline (penicillin ineffective)."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

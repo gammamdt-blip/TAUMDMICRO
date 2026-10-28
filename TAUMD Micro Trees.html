@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<!--
+=====================================================================
+ TAUMD MICRO TREES  -  viewer for bacteria.json, fungi.json, virology.json
+=====================================================================
+
+ WHAT THIS IS
+   One HTML page that holds no medical content of its own. The content lives in
+   three JSON files that sit in the same folder as this page:
+
+     TAUMD_Micro_Trees.html   the viewer (this file)
+     bacteria.json            Gram-positive, Gram-negative, poorly staining groups
+     fungi.json               dimorphic, opportunistic, cutaneous/subcutaneous
+     virology.json            DNA viruses, RNA viruses
+
+ HOW IT WORKS, STEP BY STEP
+   1. On load, the script reads the list DATA_FILES (near the top of the script).
+   2. It fetch()es each JSON file from the same folder.
+   3. If the browser refuses (page opened by double-click, address starts with
+      file://), the page asks you to select the JSON files yourself (all three at
+      once, or drag and drop). They are read locally, never uploaded, and a copy is
+      remembered in this browser for next time.
+   4. Each file is checked: valid JSON, has meta.id, has a non-empty tree.
+      A bad file is reported by name and never breaks the others.
+   5. Every valid file becomes a tab (title, colour and icon come from its "meta").
+   6. The tree is drawn from the nested "children" arrays. Entries show badges,
+      notes and detail cards.
+   7. The search box filters all trees at once (every word must match, in the
+      node or in the branches above it); tabs show the number of matches.
+
+ THREE WAYS TO OPEN IT
+   A. Put all four files in one folder on your website. It just works.
+   B. Local server: open a terminal in the folder and run
+        python3 -m http.server 8000        (Windows: py -m http.server 8000)
+      then open http://localhost:8000/TAUMD_Micro_Trees.html
+   C. Double-click this file, press "Load files", select the three .json files.
+
+ EDITING OR ADDING DATA
+   Edit the JSON files in any text editor and reload. To add a fourth tree, copy a
+   JSON file, change meta.id / meta.title and the tree, then add its file name to
+   DATA_FILES (or just select it with "Load files"). The full field reference is in
+   the README tab inside the page.
+
+ Educational study aid for USMLE Step 1. Not for clinical decision-making.
+=====================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Interactive USMLE Step 1 microbiology trees for bacteria, fungi and viruses, loaded from three JSON files.">
+<title>TAUMD Micro Trees: Bacteria, Fungi, Virology</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2313202b'/%3E%3Cg fill='none' stroke='%23fafcfc' stroke-width='2.2' stroke-linecap='round'%3E%3Cpath d='M10 9v14h6M10 16h6'/%3E%3C/g%3E%3Ccircle cx='10' cy='8' r='2.6' fill='%235b2c83'/%3E%3Ccircle cx='19' cy='16' r='2.6' fill='%233b6b34'/%3E%3Ccircle cx='19' cy='23' r='2.6' fill='%231f4a8a'/%3E%3C/svg%3E">
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #e8edf0;
+  --surface: #fafcfc;
+  --surface-2: #f0f4f6;
+  --ink: #13202b;
+  --ink-2: #3d4c59;
+  --muted: #637586;
+  --line: #cbd6dc;
+  --line-2: #b2c0ca;
+  --hover: #dde6eb;
+  --focus: #1f6fd1;
+  --mark-bg: #ffd3e4;
+  --mark-ink: #4a0d27;
+  --mark-line: #d6336c;
+  --buzz-bg: #fff0b3;
+  --buzz-line: #e1b11a;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --acc: #5b2c83;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e161c;
+    --surface: #15212a;
+    --surface-2: #1a2933;
+    --ink: #e4edf2;
+    --ink-2: #b4c2cd;
+    --muted: #8a9dac;
+    --line: #263642;
+    --line-2: #344756;
+    --hover: #1f313c;
+    --focus: #6aa9f4;
+    --mark-bg: #7a1f45;
+    --mark-ink: #ffe3ee;
+    --mark-line: #f06aa0;
+    --buzz-bg: rgba(250, 204, 21, .2);
+    --buzz-line: #c9a227;
+  }
+}
+
+* { box-sizing: border-box; }
+html { scroll-padding-top: 150px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font: 16px/1.5 var(--sans);
+  -webkit-text-size-adjust: 100%;
+}
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.skip { position: absolute; left: 12px; top: -48px; background: var(--ink); color: var(--bg); padding: 8px 14px; border-radius: 5px; z-index: 200; }
+.skip:focus { top: 10px; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+/* ---------- Tone tokens (badges, legend rules) ---------- */
+.tone-gray   { --t-bg: #e3eaee; --t-ink: #3d4c59; --t-bd: #cbd6dc; --t-c: #7b8a97; }
+.tone-sens   { --t-bg: #d9f3e1; --t-ink: #12532b; --t-bd: #a9dcb9; --t-c: #16a34a; }
+.tone-res    { --t-bg: #fbdede; --t-ink: #7a1b1b; --t-bd: #f1b3b3; --t-c: #dc2626; }
+.tone-purple { --t-bg: #e8e0fa; --t-ink: #3f1d8c; --t-bd: #cdbff0; --t-c: #7c3aed; }
+.tone-blue   { --t-bg: #dce8fb; --t-ink: #173f87; --t-bd: #b4cdf3; --t-c: #2563eb; }
+.tone-amber  { --t-bg: #fbecc8; --t-ink: #6b3d05; --t-bd: #ecd18e; --t-c: #d97706; }
+.tone-teal   { --t-bg: #d3f2ee; --t-ink: #0f4a44; --t-bd: #9fdcd4; --t-c: #0d9488; }
+@media (prefers-color-scheme: dark) {
+  .tone-gray   { --t-bg: #22323d; --t-ink: #c2d0da; --t-bd: #34495a; }
+  .tone-sens   { --t-bg: #12341f; --t-ink: #8be0a8; --t-bd: #1f5a35; }
+  .tone-res    { --t-bg: #3b1719; --t-ink: #fba6a6; --t-bd: #6b2a2d; }
+  .tone-purple { --t-bg: #2a2147; --t-ink: #cbbcff; --t-bd: #463a7a; }
+  .tone-blue   { --t-bg: #172b4b; --t-ink: #a5c7fb; --t-bd: #284878; }
+  .tone-amber  { --t-bg: #3a2a0e; --t-ink: #f5cf7a; --t-bd: #66491a; }
+  .tone-teal   { --t-bg: #0f302d; --t-ink: #7fe0d4; --t-bd: #1b5650; }
+}
+
+/* ---------- Icons ---------- */
+.i { width: 1.15em; height: 1.15em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+/* ---------- Header ---------- */
+.top-bar { background: var(--surface); border-bottom: 1px solid var(--line-2); }
+@media (min-width: 760px) { .top-bar { position: sticky; top: 0; z-index: 50; box-shadow: 0 6px 18px -14px rgba(10, 25, 40, .55); } }
+.brand-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-top: 12px; flex-wrap: wrap; }
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.mark { width: 36px; height: 36px; border-radius: 8px; background: var(--ink); color: var(--bg); display: grid; place-items: center; flex: none; }
+.mark .i { width: 20px; height: 20px; }
+.brand h1 { margin: 0; font: 700 1.3rem/1.1 var(--serif); letter-spacing: -.01em; }
+.brand h1 span { font-weight: 400; font-style: italic; }
+.brand p { margin: 2px 0 0; font-size: .82rem; color: var(--muted); }
+.brand-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.chip { display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 13px; border: 1px solid var(--line-2); border-radius: 999px; background: var(--surface); font-weight: 600; font-size: .82rem; }
+.chip i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.chip.ok i { background: #16a34a; }
+.chip.warn i { background: #d97706; }
+.chip:hover { background: var(--hover); }
+.btn { display: inline-flex; align-items: center; gap: 7px; height: 34px; padding: 0 13px; border: 1px solid var(--line-2); border-radius: 5px; background: var(--surface); font-weight: 600; font-size: .85rem; color: var(--ink); }
+.btn:hover { background: var(--hover); }
+.btn.primary { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn.primary:hover { background: var(--ink-2); }
+.link { background: none; border: 0; padding: 0; color: var(--focus); text-decoration: underline; text-underline-offset: 2px; font-weight: 600; }
+
+.bar-row { display: flex; align-items: flex-end; gap: 14px; padding: 12px 0 12px; flex-wrap: wrap; }
+.tabs { display: flex; gap: 10px; overflow-x: auto; padding: 3px 3px 7px; margin: -3px; scrollbar-width: thin; max-width: 100%; flex: 0 1 auto; }
+
+/* Slide-shaped tabs: a colored frosted label end plus a clear glass body */
+.tab { display: flex; align-items: stretch; flex: none; height: 42px; padding: 0; border: 1px solid var(--line-2); border-radius: 5px; background: var(--surface); overflow: hidden; transition: transform .15s ease, box-shadow .15s ease; }
+.tab .end { width: 42px; display: grid; place-items: center; background: var(--acc); color: var(--on-acc, #fff); border-right: 1px solid color-mix(in srgb, #000 22%, var(--acc)); }
+.tab .t { display: flex; align-items: center; gap: 9px; padding: 0 14px 0 12px; font-weight: 600; font-size: .95rem; }
+.tab .n { font-weight: 500; font-size: .84rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.tab .n.hit { background: var(--mark-bg); color: var(--mark-ink); padding: 1px 8px; border-radius: 999px; font-weight: 700; }
+.tab:hover { border-color: var(--acc); }
+.tab[aria-selected="true"] { border-color: var(--acc); box-shadow: 0 0 0 1px var(--acc), 0 9px 14px -10px var(--acc); transform: translateY(-1px); }
+.tab[aria-selected="true"] .t { background: color-mix(in srgb, var(--acc) 9%, var(--surface)); }
+.tab.zero { opacity: .5; }
+.tab.readme { --acc: var(--ink-2); --on-acc: var(--surface); }
+
+.search { position: relative; flex: 1 1 260px; max-width: 440px; margin-left: auto; }
+.search input { width: 100%; height: 42px; padding: 0 74px 0 38px; border: 1px solid var(--line-2); border-radius: 5px; background: var(--surface); color: var(--ink); font: inherit; font-size: .95rem; }
+.search input::placeholder { color: var(--muted); }
+.search input::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; }
+.search .i { position: absolute; left: 12px; top: 12px; color: var(--muted); pointer-events: none; }
+.search kbd { position: absolute; right: 10px; top: 9px; min-width: 24px; height: 24px; padding: 0 7px; display: grid; place-items: center; border: 1px solid var(--line-2); border-bottom-width: 2px; border-radius: 5px; font: 600 .78rem var(--mono); color: var(--muted); background: var(--surface-2); pointer-events: none; }
+.search input:not(:placeholder-shown) ~ kbd { display: none; }
+.search .clear { position: absolute; right: 6px; top: 6px; width: 30px; height: 30px; display: grid; place-items: center; border: 0; background: none; border-radius: 5px; color: var(--muted); }
+.search .clear:hover { background: var(--hover); color: var(--ink); }
+.search .clear[hidden] { display: none; }
+@media (hover: none) { .search kbd { display: none; } }
+
+/* ---------- Main ---------- */
+main { padding-bottom: 28px; }
+.busy { margin: 40px 0; color: var(--muted); }
+
+/* Loader card */
+.lcard { margin: 22px 0 4px; background: var(--surface); border: 1px solid var(--line-2); border-left: 5px solid #d97706; border-radius: 6px; padding: 18px 20px 18px; }
+.lcard h2 { margin: 0 0 4px; font: 700 1.25rem var(--serif); }
+.lcard p { margin: 0 0 12px; color: var(--ink-2); max-width: 70ch; }
+.lhead { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.lhead .x { width: 32px; height: 32px; border: 0; background: none; border-radius: 5px; color: var(--muted); display: grid; place-items: center; }
+.lhead .x:hover { background: var(--hover); color: var(--ink); }
+.flist { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 6px; }
+.flist li { display: flex; align-items: baseline; gap: 9px; font-size: .92rem; }
+.flist .i { transform: translateY(3px); }
+.flist .ok .i { color: #16a34a; }
+.flist .bad .i { color: #d97706; }
+.flist code { font-weight: 600; }
+.flist small { color: var(--muted); font-size: .85rem; }
+.drop { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 16px; border: 2px dashed var(--line-2); border-radius: 6px; background: var(--surface-2); }
+.drop.over { border-color: var(--focus); background: color-mix(in srgb, var(--focus) 10%, var(--surface)); }
+.drop span { color: var(--ink-2); font-size: .92rem; }
+.lcard .hint { margin: 16px 0 0; font-size: .88rem; color: var(--muted); max-width: 78ch; }
+.errs { margin: 12px 0 0; padding: 10px 14px; list-style: none; background: color-mix(in srgb, #dc2626 9%, var(--surface)); border: 1px solid color-mix(in srgb, #dc2626 35%, var(--line)); border-radius: 6px; font-size: .88rem; display: grid; gap: 4px; }
+
+/* Panel */
+.panel { padding-top: 22px; }
+.ph { display: flex; justify-content: space-between; align-items: flex-end; gap: 14px 20px; flex-wrap: wrap; }
+.ph h2 { margin: 0; font: 700 2.1rem/1.1 var(--serif); letter-spacing: -.015em; padding-bottom: 6px; border-bottom: 4px solid var(--acc); display: inline-block; }
+.ph p.sub { margin: 10px 0 0; color: var(--ink-2); max-width: 64ch; }
+.meta { display: flex; flex-wrap: wrap; margin: 8px 0 0; padding: 0; font-size: .84rem; color: var(--muted); }
+.meta span { padding: 0 12px; border-left: 1px solid var(--line-2); }
+.meta span:first-child { padding-left: 0; border-left: 0; }
+.ph-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.stale { margin-top: 12px; padding: 8px 12px; border: 1px solid color-mix(in srgb, #d97706 45%, var(--line)); background: color-mix(in srgb, #d97706 9%, var(--surface)); border-radius: 6px; font-size: .88rem; }
+
+/* ---------- Tree ---------- */
+.tree { margin: 20px 0 0; overflow-x: auto; padding-bottom: 2px; }
+.kids { list-style: none; margin: 0; padding: 0; }
+.kids.top { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+details > summary { list-style: none; cursor: pointer; }
+details > summary::-webkit-details-marker { display: none; }
+details > .kids { margin: 2px 0 0 20px; }
+.node { position: relative; padding: 4px 0 0 22px; }
+.node::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; border-left: 1.5px solid var(--line-2); }
+.node:last-child::before { bottom: auto; height: 23px; }
+.node::after { content: ""; position: absolute; left: 0; top: 23px; width: 16px; border-top: 1.5px solid var(--line-2); }
+.node details > .kids { margin-left: 17px; }
+
+.row { display: grid; grid-template-columns: 16px 20px minmax(0, 1fr); column-gap: 7px; align-items: start; padding: 7px 8px; border: 1px solid transparent; border-radius: 6px; line-height: 22px; }
+.chev { width: 16px; height: 22px; color: var(--muted); transition: transform .15s ease; }
+details[open] > summary .chev { transform: rotate(90deg); }
+.ico { height: 22px; display: grid; place-items: center; color: var(--tint, var(--muted)); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--acc); }
+.lbl { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 8px; min-width: 0; }
+.name { font-weight: 600; overflow-wrap: anywhere; }
+.cap { grid-column: 3; margin-top: 3px; font-size: .9rem; line-height: 1.5; color: var(--ink-2); max-width: 76ch; }
+.sum:hover > .row { box-shadow: inset 0 0 0 999px color-mix(in srgb, var(--ink) 5%, transparent); }
+summary.sum:focus-visible { outline-offset: 0; border-radius: 6px; }
+
+/* Type tints */
+.t-category   { --tint: var(--acc); }
+.t-genome     { --tint: #7c3aed; }
+.t-envelope-status { --tint: #0d9488; }
+.b > summary > .row { background: color-mix(in srgb, var(--tint, var(--muted)) 9%, var(--surface)); border-color: color-mix(in srgb, var(--tint, var(--muted)) 28%, var(--line)); }
+.b > summary .name { font-weight: 650; }
+.t-species .name, .t-family .name { font-family: var(--serif); font-size: 1.05rem; }
+.t-species .name { font-style: italic; }
+
+/* Top-level bars */
+/* Written with .sum so they outrank the pale branch tint, whatever the node's type */
+.top-node > details > summary.sum > .row,
+.top-node > .sum > .row { background: var(--c, var(--acc)); color: var(--on, #fff); border-color: transparent; padding: 11px 13px; }
+.top-node .row .ico, .top-node .row .chev { color: inherit; }
+.top-node .row .name { font: 700 1.2rem/1.3 var(--serif); letter-spacing: -.005em; }
+.top-node .row .cap { color: inherit; opacity: .92; }
+.top-node .row .badge { background: rgba(255, 255, 255, .16); background: color-mix(in srgb, currentColor 16%, transparent); color: inherit; border-color: color-mix(in srgb, currentColor 38%, transparent); }
+
+.badge { display: inline-flex; align-items: center; min-width: 0; max-width: 100%; overflow-wrap: anywhere; padding: 3px 9px; border: 1px solid var(--t-bd); border-radius: 999px; background: var(--t-bg); color: var(--t-ink); font: 600 .74rem/1.25 var(--sans); }
+
+/* Body under an entry */
+.body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; margin: 2px 0 8px 31px; }
+.notes { padding: 9px 14px; border-left: 3px solid var(--acc); border-radius: 0 6px 6px 0; background: var(--surface-2); font-size: .92rem; line-height: 1.65; color: var(--ink-2); max-width: 80ch; }
+.dgrid { display: grid; gap: 8px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr)); }
+.dcard { padding: 10px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-2); }
+.dcard.wide { grid-column: 1 / -1; }
+.dcard h4 { margin: 0 0 4px; font: 700 .86rem/1.3 var(--sans); color: var(--ink); }
+.dcard p, .dcard li { margin: 0; font-size: .9rem; line-height: 1.65; color: var(--ink-2); max-width: 84ch; }
+.dcard ul { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; }
+
+mark { background: var(--mark-bg); color: var(--mark-ink); border-radius: 3px; padding: 0 2px; box-shadow: 0 0 0 1px var(--mark-line); }
+.top-node .row mark { color: var(--mark-ink); }
+.buzz { background: var(--buzz-bg); box-shadow: inset 0 -2px 0 var(--buzz-line); padding: 0 3px; border-radius: 3px; font-weight: 600; color: var(--ink); }
+
+.empty { margin: 22px 0; padding: 18px 20px; background: var(--surface); border: 1px solid var(--line-2); border-radius: 6px; color: var(--ink-2); }
+.empty p { margin: 0; }
+.empty[hidden] { display: none; }
+
+/* Legend */
+.legend { display: grid; gap: 12px; margin-top: 26px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); }
+.lg { padding: 13px 18px 15px; background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--t-c, var(--line-2)); border-radius: 6px; }
+.lg h3 { margin: 0 0 9px; font: 700 1.02rem var(--serif); }
+.lg ul { margin: 0; padding: 0; list-style: none; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.lg li { display: flex; align-items: baseline; gap: 10px; font-size: .9rem; line-height: 1.55; color: var(--ink-2); }
+.sw { flex: none; width: 14px; height: 14px; border-radius: 50%; transform: translateY(2px); }
+
+/* ---------- README ---------- */
+.prose { padding-top: 24px; max-width: 800px; }
+.prose h2 { margin: 0 0 6px; font: 700 2rem/1.15 var(--serif); letter-spacing: -.015em; }
+.prose h3 { margin: 34px 0 10px; font: 700 1.25rem/1.25 var(--serif); padding-top: 18px; border-top: 1px solid var(--line-2); }
+.prose h4 { margin: 18px 0 6px; font: 700 .98rem var(--sans); }
+.prose p, .prose li { line-height: 1.72; color: var(--ink-2); }
+.prose p { margin: 0 0 12px; max-width: 74ch; }
+.prose strong { color: var(--ink); }
+.prose a { color: var(--focus); }
+.prose code { font: .86em var(--mono); background: var(--surface-2); border: 1px solid var(--line); padding: 1px 6px; border-radius: 4px; color: var(--ink); }
+.prose pre { margin: 10px 0 16px; padding: 14px 16px; overflow: auto; border-radius: 6px; background: #0f1a22; color: #d5e3ec; font: .82rem/1.6 var(--mono); border: 1px solid #22323d; }
+.prose pre code { background: none; border: 0; padding: 0; color: inherit; font-size: inherit; }
+.prose ul.plain { padding-left: 1.2em; display: grid; gap: 4px; margin: 0 0 14px; }
+.lead { font-size: 1.08rem; color: var(--ink) !important; }
+ol.steps { counter-reset: s; list-style: none; margin: 8px 0 8px; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+ol.steps > li { counter-increment: s; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 12px; }
+ol.steps > li::before { content: counter(s); width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--bg); font: 700 .85rem var(--sans); margin-top: 2px; }
+ol.steps b { display: block; color: var(--ink); }
+.opts { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin: 8px 0 12px; }
+.opt { padding: 12px 16px 4px; border: 1px solid var(--line); border-left: 4px solid var(--line-2); border-radius: 6px; background: var(--surface); }
+.opt.best { border-left-color: #16a34a; }
+.opt h4 { margin: 0 0 4px; }
+.tblwrap { overflow-x: auto; margin: 8px 0 16px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+.tbl { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.tbl th, .tbl td { text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink-2); }
+.tbl th { font-weight: 700; color: var(--ink); background: var(--surface-2); }
+.tbl tr:last-child td { border-bottom: 0; }
+.tbl td:first-child { white-space: nowrap; }
+.tbl .good { color: #15803d; font-weight: 700; }
+.tbl .bad { color: #b45309; font-weight: 700; }
+@media (prefers-color-scheme: dark) { .tbl .good { color: #6ee7a0; } .tbl .bad { color: #f5b25a; } }
+.callout { margin: 12px 0 16px; padding: 12px 16px; border-left: 4px solid var(--focus); background: var(--surface); border-radius: 0 6px 6px 0; }
+.callout p:last-child { margin-bottom: 0; }
+
+footer { padding: 6px 0 36px; color: var(--muted); font-size: .84rem; }
+footer p { margin: 0; max-width: 80ch; border-top: 1px solid var(--line-2); padding-top: 14px; }
+
+body.drag::after { content: "Drop the JSON files to load them"; position: fixed; inset: 0; z-index: 300; display: grid; place-items: center; background: rgba(10, 22, 32, .62); color: #fff; font: 700 1.5rem var(--serif); pointer-events: none; }
+
+@media (max-width: 759px) {
+  .brand p { display: none; }
+  .ph h2 { font-size: 1.7rem; }
+  .top-node .row .name { font-size: 1.1rem; }
+  .node { padding-left: 14px; }
+  .node::after { width: 10px; }
+  .node details > .kids { margin-left: 13px; }
+  .row { grid-template-columns: 14px 18px minmax(0, 1fr); column-gap: 5px; padding: 6px; }
+  .body { margin-left: 0; }
+  .search { max-width: none; flex-basis: 100%; margin-left: 0; }
+  html { scroll-padding-top: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media print {
+  body { background: #fff; color: #000; }
+  .top-bar, .ph-actions, .lcard, .skip, footer { display: none !important; }
+  .panel[hidden], #readme[hidden] { display: none !important; }
+  .top-node > details > summary > .row, .top-node > .sum > .row { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the trees</a>
+
+<header class="top-bar">
+  <div class="wrap">
+    <div class="brand-row">
+      <div class="brand">
+        <span class="mark"><svg class="i" aria-hidden="true"><use href="#i-tree"/></svg></span>
+        <div>
+          <h1>TAUMD <span>Micro Trees</span></h1>
+          <p>Bacteria, fungi and viruses for USMLE Step 1</p>
+        </div>
+      </div>
+      <div class="brand-actions">
+        <button class="chip" id="statusChip" data-act="status" title="Show which data files loaded"><i></i><span id="statusText">Reading data files…</span></button>
+        <button class="btn" data-act="openLoader"><svg class="i" aria-hidden="true"><use href="#i-upload"/></svg>Load files</button>
+      </div>
+    </div>
+    <div class="bar-row">
+      <div class="tabs" id="tabs" role="tablist" aria-label="Trees"></div>
+      <div class="search">
+        <label class="sr" for="q">Search all trees</label>
+        <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
+        <input id="q" type="search" placeholder="Search all trees (try: naked rna)" autocomplete="off" spellcheck="false">
+        <kbd aria-hidden="true">/</kbd>
+        <button class="clear" id="qClear" type="button" aria-label="Clear search" hidden><svg class="i" aria-hidden="true"><use href="#i-x"/></svg></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <noscript><p class="busy">This page needs JavaScript to read the JSON files and draw the trees.</p></noscript>
+    <section id="loader" aria-live="polite" hidden></section>
+    <div id="panels"><p class="busy">Reading data files…</p></div>
+
+    <!-- ===================== README (lives inside the page) ===================== -->
+    <section id="readme" class="prose" role="tabpanel" aria-labelledby="tab-readme" hidden>
+      <h2>README and how it works</h2>
+      <p class="lead">This page is a viewer. It holds no medical content of its own: the three trees live in three JSON files next to it, and the page reads them when it opens.</p>
+
+      <h3 id="files">What is in the package</h3>
+      <div class="tblwrap"><table class="tbl">
+        <thead><tr><th>File</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>TAUMD_Micro_Trees.html</code></td><td>The viewer: tabs, search, tree drawing, this README.</td></tr>
+          <tr><td><code>bacteria.json</code></td><td>Gram-positive, Gram-negative and poorly staining bacteria.</td></tr>
+          <tr><td><code>fungi.json</code></td><td>Dimorphic, opportunistic, cutaneous and subcutaneous fungi.</td></tr>
+          <tr><td><code>virology.json</code></td><td>DNA and RNA viruses by envelope, genome and family.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Keep all four files together in one folder. The page looks for the JSON files by name, in its own folder.</p>
+
+      <h3 id="steps">How it works, step by step</h3>
+      <ol class="steps">
+        <li><div><b>The page opens and reads its file list.</b>At the top of its script is <code>DATA_FILES</code>: <code>["bacteria.json", "fungi.json", "virology.json"]</code>.</div></li>
+        <li><div><b>It fetches each JSON file.</b>Each file is requested from the same folder with <code>fetch()</code>. This works when the page is served over http or https, for example from your website or a local server.</div></li>
+        <li><div><b>If the browser refuses, you pick the files.</b>A page opened by double-click (address starts with <code>file://</code>) is not allowed to read its neighbours. The page then shows a file picker: select all three JSON files at once, or drop them on the window. They are read inside your browser and never uploaded. A copy is remembered in this browser so the next double-click opens straight away.</div></li>
+        <li><div><b>Each file is checked.</b>It must be valid JSON with a <code>meta.id</code> and a non-empty <code>tree</code>. A problem is reported by file name in the status table below, and one bad file never stops the others.</div></li>
+        <li><div><b>Every valid file becomes a tab.</b>The tab name, color and icon come from the file's <code>meta</code> block. Tabs are ordered by <code>meta.order</code>.</div></li>
+        <li><div><b>The tree is drawn from the nested <code>children</code>.</b>A node with children is a branch you can fold and unfold. A node without children is an entry: its name and badges, then its notes and detail cards.</div></li>
+        <li><div><b>Search runs on all trees at once.</b>Every word must match, in any order, in a node (name, badges, notes, details) or in the branches above it, so “naked rna” finds the naked RNA viruses. Matches are highlighted, matching branches open, and each tab shows its match count.</div></li>
+      </ol>
+
+      <h3 id="open">Three ways to open it</h3>
+      <div class="opts">
+        <div class="opt best">
+          <h4>A. On your website (recommended)</h4>
+          <p>Upload all four files to the same folder. Nothing else to do: the JSON files load automatically.</p>
+        </div>
+        <div class="opt">
+          <h4>B. Local server</h4>
+          <p>Open a terminal in the folder and run:</p>
+<pre><code>python3 -m http.server 8000
+# Windows: py -m http.server 8000</code></pre>
+          <p>Then open <code>http://localhost:8000/TAUMD_Micro_Trees.html</code>. This always reads the current JSON files.</p>
+        </div>
+        <div class="opt">
+          <h4>C. Double-click the HTML file</h4>
+          <p>Press <b>Load files</b> (top right), then select <code>bacteria.json</code>, <code>fungi.json</code> and <code>virology.json</code> together. In the folder window, <kbd>Ctrl</kbd>/<kbd>Cmd</kbd> + <kbd>A</kbd> selects them all.</p>
+        </div>
+      </div>
+
+      <h3 id="use">Using the viewer</h3>
+      <ul class="plain">
+        <li><b>Tabs</b> switch between trees. Arrow keys move between tabs.</li>
+        <li><b>Search</b> filters every tree. Press <kbd>/</kbd> to jump to the box and <kbd>Esc</kbd> to clear it.</li>
+        <li><b>Expand all</b> and <b>Collapse all</b> work on the tab you are looking at.</li>
+        <li><b>Hide details</b> keeps only names and badges so you can test yourself. Click any entry to reveal its notes.</li>
+        <li><b>Print</b> opens every branch first, so the whole tree lands on paper.</li>
+      </ul>
+
+      <h3 id="edit">Editing the data</h3>
+      <p>Open any JSON file in a text editor, change it, and reload the page. The structure is the same in all three files:</p>
+<pre><code>{
+  "schema": "taumd-tree/1",
+  "meta": {
+    "id": "parasites",          // required, unique, no spaces
+    "title": "Parasites",       // tab name
+    "subtitle": "Protozoa and helminths",
+    "icon": "tree",             // bacteria | fungus | virus | tree
+    "accent": "#0f766e",        // tab and entry color
+    "order": 4                  // tab position
+  },
+  "legend": [
+    { "title": "Legend",
+      "items": ["{buzzword|Yellow} marks a high-yield buzzword."] }
+  ],
+  "tree": [
+    { "name": "Protozoa", "type": "category", "color": "#0f766e",
+      "children": [
+        { "name": "Giardia lamblia", "type": "species",
+          "badges": ["Flagellated", { "text": "Waterborne", "tone": "blue" }],
+          "notes": "Foul-smelling, **fatty** diarrhea in campers.",
+          "details": [
+            { "label": "Diagnosis", "text": "Stool microscopy: trophozoites and cysts." },
+            { "label": "Treatment", "list": ["Metronidazole", "Tinidazole"], "wide": true }
+          ] }
+      ] }
+  ]
+}</code></pre>
+      <p>The comments after <code>//</code> are only for this README. Real JSON does not allow comments, so leave them out of your files.</p>
+
+      <h4>Node fields (everything in <code>tree</code>)</h4>
+      <div class="tblwrap"><table class="tbl">
+        <thead><tr><th>Field</th><th>Needed</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>name</code></td><td>yes</td><td>Text shown for the node.</td></tr>
+          <tr><td><code>children</code></td><td>no</td><td>List of nodes. With children it is a branch; without, an entry.</td></tr>
+          <tr><td><code>type</code></td><td>no</td><td>Chooses the icon and tint: <code>root</code>, <code>category</code>, <code>branch</code>, <code>genome</code>, <code>envelope-status</code>, <code>family</code>, <code>species</code>. Any other word works too. <code>species</code> names are set in italics.</td></tr>
+          <tr><td><code>badges</code></td><td>no</td><td>Small tags. Plain text, or <code>{"text": "…", "tone": "…"}</code>. Tones: <code>sens</code> (green), <code>res</code> (red), <code>purple</code>, <code>blue</code>, <code>amber</code>, <code>teal</code>, <code>gray</code>. Plain text containing "sensitive" or "resistant" turns green or red by itself.</td></tr>
+          <tr><td><code>notes</code></td><td>no</td><td>One short paragraph. On an entry it sits in a box under the name; on a branch it is the caption under the name.</td></tr>
+          <tr><td><code>details</code></td><td>no</td><td>Cards under an entry. Each is <code>{"label": "…", "text": "…"}</code> or <code>{"label": "…", "list": ["…"]}</code>. Add <code>"wide": true</code> for a full-width card.</td></tr>
+          <tr><td><code>color</code></td><td>no</td><td>Bar color of a top-level node, as <code>#rrggbb</code>. Defaults to the tab's accent.</td></tr>
+          <tr><td><code>isExpanded</code></td><td>no</td><td><code>false</code> starts the node folded.</td></tr>
+          <tr><td><code>id</code></td><td>no</td><td>Free label for your own use. Not displayed.</td></tr>
+        </tbody>
+      </table></div>
+
+      <h4>Text formatting inside any text field</h4>
+      <p><code>**bold**</code>, <code>*italic*</code> and <code>{buzzword|high-yield phrase}</code> (yellow highlight). Everything else is shown as plain text, so characters like &lt; and &amp; are safe.</p>
+
+      <h4>Legend groups</h4>
+      <p>Each group is <code>{"title": "…", "tone": "blue", "items": […]}</code>. An item is a plain string, <code>{"swatch": "#hex", "text": "…"}</code> for a color dot, or <code>{"badge": "Label", "tone": "sens", "text": "…"}</code> for a sample badge.</p>
+
+      <h3 id="add">Adding a fourth tree</h3>
+      <ol class="steps">
+        <li><div>Copy <code>fungi.json</code> to a new name, for example <code>parasites.json</code>.</div></li>
+        <li><div>Change <code>meta.id</code>, <code>meta.title</code> and <code>meta.accent</code>, then replace the <code>tree</code>.</div></li>
+        <li><div>Add the file name to <code>DATA_FILES</code> near the top of this page's script, or select it with <b>Load files</b>.</div></li>
+        <li><div>Reload. A new tab appears by itself, and search covers it too.</div></li>
+      </ol>
+
+      <h3 id="trouble">If something looks wrong</h3>
+      <div class="tblwrap"><table class="tbl">
+        <thead><tr><th>You see</th><th>Why and what to do</th></tr></thead>
+        <tbody>
+          <tr><td>"Choose the data files" card on open</td><td>The page was opened from disk, so the browser blocked <code>fetch()</code>. Use <b>Choose JSON files</b>, or open it the way B or A above describes.</td></tr>
+          <tr><td>"Not valid JSON"</td><td>A comma, quote or bracket is missing in that file. Paste the file into any JSON checker to find the line.</td></tr>
+          <tr><td>Edited JSON, nothing changed</td><td>The page is showing its saved copy (a note says so above the tree). Press <b>Load files</b> and select the edited files again, or use option B.</td></tr>
+          <tr><td>A tab is missing</td><td>Check the status table below: it names each file and the reason it was skipped.</td></tr>
+          <tr><td>A top bar is hard to read</td><td>Use a darker <code>color</code>. Text on the bar switches between white and black automatically.</td></tr>
+        </tbody>
+      </table></div>
+
+      <h3 id="liveStatusHead">Status of this session</h3>
+      <div id="liveStatus"></div>
+
+      <h3>Disclaimer</h3>
+      <p>An educational study aid for USMLE Step 1. Check details against your current course material and references. Not for clinical decision-making.</p>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap"><p>TAUMD Micro Trees. Educational study aid for USMLE Step 1, not for clinical decision-making.</p></div>
+</footer>
+
+<input id="fileInput" type="file" accept=".json,application/json" multiple hidden>
+
+<!-- Icon sprite -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4z"/><path d="M20 5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6z"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V5M7.5 9.5L12 5l4.5 4.5"/><path d="M5 15v3a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 18v-3"/></symbol>
+  <symbol id="i-bacteria" viewBox="0 0 24 24"><rect x="3.5" y="8.5" width="17" height="7" rx="3.5" transform="rotate(-35 12 12)"/><circle cx="10" cy="12.5" r=".9" fill="currentColor" stroke="none"/><circle cx="14" cy="10" r=".9" fill="currentColor" stroke="none"/><path d="M4.5 18.5c-.9 1-.8 2.1.2 2.8"/></symbol>
+  <symbol id="i-fungus" viewBox="0 0 24 24"><path d="M4 13a8 7 0 0 1 16 0z"/><path d="M10 13v4.5a2 2 0 0 0 4 0V13"/><circle cx="9" cy="9.5" r=".8" fill="currentColor" stroke="none"/><circle cx="14" cy="8.5" r=".8" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-virus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></symbol>
+  <symbol id="i-tree" viewBox="0 0 24 24"><circle cx="6" cy="5" r="2"/><circle cx="15" cy="12" r="2"/><circle cx="15" cy="19" r="2"/><path d="M6 7v12h7M6 12h7"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3.5 7a1.5 1.5 0 0 1 1.5-1.5h4l2 2.5h8A1.5 1.5 0 0 1 20.5 9.5V17a1.5 1.5 0 0 1-1.5 1.5H5A1.5 1.5 0 0 1 3.5 17z"/></symbol>
+  <symbol id="i-branch" viewBox="0 0 24 24"><circle cx="7" cy="6" r="2"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="9" r="2"/><path d="M7 8v8M17 11c0 3.5-3 4-8 5"/></symbol>
+  <symbol id="i-helix" viewBox="0 0 24 24"><path d="M7 4c0 4 10 4 10 8s-10 4-10 8"/><path d="M17 4c0 4-10 4-10 8s10 4 10 8"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3.5c3 4 6 7 6 10.5a6 6 0 0 1-12 0c0-3.5 3-6.5 6-10.5z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.4"/></symbol>
+</svg>
+
+<script>
+(() => {
+'use strict';
+
+/* ================================================================
+   1. CONFIG: the JSON files this page reads. Add a file name here
+      to add another tree (or just select it with "Load files").
+   ================================================================ */
+const DATA_FILES = ['bacteria.json', 'fungi.json', 'virology.json'];
+const CACHE_KEY = 'taumd-micro-trees:v1';
+const TONES = ['sens', 'res', 'purple', 'blue', 'amber', 'teal', 'gray'];
+const ICONS = ['bacteria', 'fungus', 'virus', 'tree'];
+
+const state = {
+  datasets: [],      // loaded and validated trees
+  failures: [],      // { file, message } for files that did not load
+  active: null,      // dom id of the visible tab
+  query: '',
+  loaderOpen: false,
+  pickMsgs: [],      // problems from the last manual pick
+  booted: false,
+};
+
+/* ================================================================
+   2. SMALL HELPERS
+   ================================================================ */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'x';
+const safeColor = (c) => (typeof c === 'string' && /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(c.trim()) ? c.trim() : null);
+const ic = (name, cls = '') => `<svg class="i ${cls}" aria-hidden="true"><use href="#i-${name}"/></svg>`;
+
+// Text formatting: escape first, then allow only **bold**, *italic*, {buzzword|text}
+function md(s) {
+  return esc(s)
+    .replace(/\{buzzword\|(.+?)\}/g, '<span class="buzz">$1</span>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*([^*]+)\*/g, '<em>$1</em>');
+}
+const plain = (s) => String(s).replace(/\{buzzword\|(.+?)\}/g, '$1').replace(/\*+/g, '');
+
+function readableOn(hex) {
+  let h = hex.slice(1);
+  if (h.length === 3) h = h.split('').map((c) => c + c).join('');
+  const [r, g, b] = [0, 2, 4].map((i) => parseInt(h.substr(i, 2), 16) / 255)
+    .map((v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.18 ? '#101820' : '#ffffff';
+}
+function autoTone(text) {
+  if (/\bsens(itive)?\b/i.test(text)) return 'sens';
+  if (/\bres(istant)?\b/i.test(text)) return 'res';
+  return 'gray';
+}
+const fmtDate = (ts) => { try { return new Date(ts).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }); } catch { return ''; } };
+const baseName = (f) => String(f).toLowerCase().replace(/\s*\(\d+\)(?=\.json$)/, '');
+const matchesFile = (ds, file) => baseName(ds.fileName) === baseName(file) || baseName(file) === slug(ds.id) + '.json';
+const unresolved = () => state.failures.filter((f) => !state.datasets.some((d) => matchesFile(d, f.file)));
+
+/* ================================================================
+   3. VALIDATE + PREPARE a parsed JSON file
+   ================================================================ */
+function prepare(raw) {
+  const fail = (error) => ({ ok: false, error });
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return fail('The file must hold one JSON object with "meta" and "tree".');
+  const m = raw.meta;
+  if (!m || typeof m !== 'object' || typeof m.id !== 'string' || !m.id.trim()) return fail('Missing "meta.id" (a short unique name such as "bacteria").');
+  let tree = raw.tree;
+  if (tree && !Array.isArray(tree)) tree = [tree];
+  if (!Array.isArray(tree) || !tree.length) return fail('Missing "tree": it must be a list with at least one node.');
+
+  const problems = [];
+  const ds = {
+    id: m.id.trim(),
+    dom: slug(m.id),
+    title: typeof m.title === 'string' && m.title.trim() ? m.title : m.id,
+    subtitle: typeof m.subtitle === 'string' ? m.subtitle : '',
+    icon: ICONS.includes(m.icon) ? m.icon : 'tree',
+    accent: safeColor(m.accent) || '#4f46e5',
+    order: Number.isFinite(m.order) ? m.order : 100,
+    legend: [], tree: [], nodes: 0, groups: 0, entries: 0, problems,
+  };
+
+  const toBadge = (b) => {
+    if (typeof b === 'string' && b.trim()) return { text: b, tone: autoTone(b) };
+    if (b && typeof b.text === 'string' && b.text.trim()) return { text: b.text, tone: TONES.includes(b.tone) ? b.tone : autoTone(b.text) };
+    return null;
+  };
+  const toDetail = (d) => {
+    if (!d || typeof d !== 'object') return null;
+    const list = Array.isArray(d.list) ? d.list.filter((x) => typeof x === 'string') : [];
+    const text = typeof d.text === 'string' ? d.text : '';
+    if (!text && !list.length) return null;
+    return { label: typeof d.label === 'string' ? d.label : '', text, list, wide: d.wide === true };
+  };
+
+  const walk = (src, depth) => {
+    if (!src || typeof src !== 'object') { problems.push('A node was not an object and was skipped.'); return null; }
+    let name = src.name;
+    if (typeof name !== 'string' || !name.trim()) { problems.push('A node has no "name".'); name = '(unnamed)'; }
+    const badges = (Array.isArray(src.badges) ? src.badges : []).map(toBadge).filter(Boolean);
+    const details = (Array.isArray(src.details) ? src.details : []).map(toDetail).filter(Boolean);
+    const notes = typeof src.notes === 'string' ? src.notes : '';
+    const children = (Array.isArray(src.children) ? src.children : []).map((c) => walk(c, depth + 1)).filter(Boolean);
+    const n = {
+      name, notes, badges, details, children, depth,
+      type: typeof src.type === 'string' ? src.type : '',
+      color: safeColor(src.color),
+      open: src.isExpanded !== false,
+    };
+    const head = plain([name, ...badges.map((b) => b.text)].join(' '));
+    n.head = head.toLowerCase();
+    n.all = plain([head, notes, ...details.map((d) => [d.label, d.text, ...d.list].join(' '))].join(' ')).toLowerCase();
+    ds.nodes++;
+    if (children.length) ds.groups++; else ds.entries++;
+    return n;
+  };
+  ds.tree = tree.map((t) => walk(t, 0)).filter(Boolean);
+
+  if (Array.isArray(raw.legend)) {
+    ds.legend = raw.legend.filter((g) => g && typeof g === 'object' && Array.isArray(g.items)).map((g) => ({
+      title: typeof g.title === 'string' ? g.title : '',
+      tone: TONES.includes(g.tone) ? g.tone : null,
+      items: g.items.map((it) => {
+        if (typeof it === 'string') return { text: it };
+        if (it && typeof it === 'object' && typeof it.text === 'string') {
+          return { text: it.text, swatch: safeColor(it.swatch), badge: typeof it.badge === 'string' ? it.badge : '', tone: TONES.includes(it.tone) ? it.tone : autoTone(it.badge || '') };
+        }
+        return null;
+      }).filter(Boolean),
+    }));
+  }
+  ds.problems = Array.from(new Set(problems));
+  return { ok: true, ds };
+}
+
+function ingest(text, fileName, how, savedAt) {
+  let raw;
+  try { raw = JSON.parse(String(text).replace(/^﻿/, '')); }
+  catch (e) { return { ok: false, error: 'Not valid JSON. ' + e.message }; }
+  const r = prepare(raw);
+  if (!r.ok) return r;
+  Object.assign(r.ds, { fileName, how, savedAt: savedAt || null, text });
+  const i = state.datasets.findIndex((d) => d.id === r.ds.id);
+  if (i >= 0) state.datasets[i] = r.ds; else state.datasets.push(r.ds);
+  state.datasets.sort((a, b) => a.order - b.order || a.title.localeCompare(b.title));
+  return { ok: true, ds: r.ds };
+}
+
+/* ================================================================
+   4. LOADING: fetch first, saved copy and file picker as fallbacks
+   ================================================================ */
+function cacheRead() { try { return JSON.parse(localStorage.getItem(CACHE_KEY)) || {}; } catch { return {}; } }
+function cacheWrite(ds) {
+  try { const c = cacheRead(); c[ds.id] = { fileName: ds.fileName, savedAt: Date.now(), text: ds.text }; localStorage.setItem(CACHE_KEY, JSON.stringify(c)); } catch { /* storage unavailable */ }
+}
+function cacheClear() { try { localStorage.removeItem(CACHE_KEY); } catch { /* ignore */ } }
+const cacheCount = () => Object.keys(cacheRead()).length;
+
+async function loadViaFetch(file) {
+  try {
+    const res = await fetch(file, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status + (res.statusText ? ' ' + res.statusText : ''));
+    const r = ingest(await res.text(), file, 'fetch');
+    if (!r.ok) state.failures.push({ file, message: r.error });
+  } catch (e) {
+    state.failures.push({
+      file,
+      message: location.protocol === 'file:' ? 'blocked by the browser (page opened from disk)' : (e && e.message) || 'Could not be fetched.',
+    });
+  }
+}
+function loadFromCache() {
+  for (const [id, e] of Object.entries(cacheRead())) {
+    if (!state.datasets.some((d) => d.id === id) && e && typeof e.text === 'string') ingest(e.text, e.fileName || id + '.json', 'cache', e.savedAt);
+  }
+}
+async function handleFiles(files) {
+  const jsons = files.filter((f) => /\.json$/i.test(f.name) || f.type === 'application/json');
+  state.pickMsgs = [];
+  if (!jsons.length) state.pickMsgs.push('No .json files were selected.');
+  for (const f of jsons) {
+    try {
+      const text = await f.text();
+      const r = ingest(text, f.name, 'picked');
+      if (r.ok) cacheWrite(r.ds); else state.pickMsgs.push(f.name + ': ' + r.error);
+    } catch (e) { state.pickMsgs.push(f.name + ': could not be read. ' + e.message); }
+  }
+  state.loaderOpen = state.pickMsgs.length > 0;
+  refreshAll();
+}
+
+/* ================================================================
+   5. RENDERING THE TREE
+   ================================================================ */
+function iconFor(n, ds, isBranch) {
+  if (n.depth === 0) return ic(ds.icon);
+  if (n.type === 'genome') return ic('helix');
+  if (n.type === 'envelope-status') return ic('drop');
+  if (isBranch) return ic(n.type === 'category' ? 'folder' : 'branch');
+  return '<span class="dot"></span>';
+}
+
+function rowHTML(n, ds, isBranch, collapsible) {
+  const chev = collapsible ? ic('chev', 'chev') : '<span class="chev"></span>';
+  const badges = n.badges.map((b) => `<span class="badge tone-${b.tone} hl">${md(b.text)}</span>`).join('');
+  const cap = isBranch && n.notes ? `<div class="cap hl">${md(n.notes)}</div>` : '';
+  return `<div class="row">${chev}<span class="ico">${iconFor(n, ds, isBranch)}</span><div class="lbl"><span class="name hl">${md(n.name)}</span>${badges}</div>${cap}</div>`;
+}
+
+function bodyHTML(n, isBranch) {
+  let h = '';
+  if (!isBranch && n.notes) h += `<div class="notes hl">${md(n.notes)}</div>`;
+  if (n.details.length) {
+    h += '<div class="dgrid">' + n.details.map((d) => `<section class="dcard${d.wide ? ' wide' : ''}">` +
+      (d.label ? `<h4 class="hl">${esc(d.label)}</h4>` : '') +
+      (d.text ? `<p class="hl">${md(d.text)}</p>` : '') +
+      (d.list.length ? `<ul class="hl">${d.list.map((x) => `<li>${md(x)}</li>`).join('')}</ul>` : '') +
+      '</section>').join('') + '</div>';
+  }
+  return h ? `<div class="body">${h}</div>` : '';
+}
+
+function nodeHTML(v, ds, searching) {
+  const n = v.n;
+  const kids = v.kids === 'all' ? n.children.map((c) => ({ n: c, kids: 'all' })) : v.kids;
+  const isBranch = n.children.length > 0;
+  const body = bodyHTML(n, isBranch);
+  const collapsible = isBranch || body !== '';
+  const cls = 't-' + slug(n.type || 'none');
+  const style = n.color ? ` style="--c:${n.color};--on:${readableOn(n.color)}"` : '';
+  const row = rowHTML(n, ds, isBranch, collapsible);
+  if (!collapsible) return `<div class="sum leaf ${cls}"${style}>${row}</div>`;
+  const kidsHTML = kids.length ? `<ul class="kids">${kids.map((k) => `<li class="node">${nodeHTML(k, ds, searching)}</li>`).join('')}</ul>` : '';
+  const open = searching || n.open;
+  return `<details class="${isBranch ? 'b' : 'l'} ${cls}"${style}${open ? ' open' : ''}><summary class="sum">${row}</summary>${body}${kidsHTML}</details>`;
+}
+
+/* ---- search ---- */
+const tokenize = (q) => Array.from(new Set(q.toLowerCase().split(/\s+/).filter(Boolean)));
+const hasAll = (s, tokens) => tokens.every((t) => s.includes(t));
+// A word may match the node itself or any branch above it, so "naked rna" finds
+// the naked viruses that sit under the "RNA Viruses" branch.
+function filterNodes(nodes, tokens, above = '') {
+  const out = [];
+  for (const n of nodes) {
+    const head = above + ' ' + n.head;
+    if (hasAll(head, tokens)) { out.push({ n, kids: 'all' }); continue; }   // name/badge hit: keep whole subtree
+    const kids = filterNodes(n.children, tokens, head);
+    if (hasAll(above + ' ' + n.all, tokens) || kids.length) out.push({ n, kids });
+  }
+  return out;
+}
+const countHits = (nodes, tokens, above = '') =>
+  nodes.reduce((s, n) => s + (hasAll(above + ' ' + n.all, tokens) ? 1 : 0) + countHits(n.children, tokens, above + ' ' + n.head), 0);
+
+function highlight(root, tokens) {
+  const re = new RegExp('(' + tokens.slice().sort((a, b) => b.length - a.length).map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'gi');
+  $$('.hl', root).forEach((el) => {
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    const texts = [];
+    while (walker.nextNode()) texts.push(walker.currentNode);
+    texts.forEach((t) => {
+      const s = t.nodeValue;
+      re.lastIndex = 0;
+      if (!re.test(s)) return;
+      re.lastIndex = 0;
+      const frag = document.createDocumentFragment();
+      let last = 0, m;
+      while ((m = re.exec(s))) {
+        if (m.index > last) frag.append(s.slice(last, m.index));
+        const mk = document.createElement('mark');
+        mk.textContent = m[0];
+        frag.append(mk);
+        last = m.index + m[0].length;
+      }
+      frag.append(s.slice(last));
+      t.replaceWith(frag);
+    });
+  });
+}
+
+/* ================================================================
+   6. PAGE PIECES: tabs, panels, legend, loader, status, README table
+   ================================================================ */
+function buildTabs() {
+  $('#tabs').innerHTML = state.datasets.map((ds) =>
+    `<button class="tab" role="tab" id="tab-${ds.dom}" data-tab="${ds.dom}" aria-controls="panel-${ds.dom}" aria-selected="false" tabindex="-1" style="--acc:${ds.accent};--on-acc:${readableOn(ds.accent)}">` +
+    `<span class="end">${ic(ds.icon)}</span><span class="t">${esc(ds.title)}<span class="n" data-count="${ds.dom}">${ds.entries}</span></span></button>`
+  ).join('') +
+  `<button class="tab readme" role="tab" id="tab-readme" data-tab="readme" aria-controls="readme" aria-selected="false" tabindex="-1"><span class="end">${ic('book')}</span><span class="t">README</span></button>`;
+}
+
+function legendHTML(groups) {
+  if (!groups.length) return '';
+  return '<div class="legend">' + groups.map((g) =>
+    `<section class="lg${g.tone ? ' tone-' + g.tone : ''}">${g.title ? `<h3>${esc(g.title)}</h3>` : ''}<ul>` +
+    g.items.map((it) => '<li>' +
+      (it.swatch ? `<i class="sw" style="background:${it.swatch}"></i>` : '') +
+      (it.badge ? `<span class="badge tone-${it.tone}">${esc(it.badge)}</span>` : '') +
+      `<span>${md(it.text)}</span></li>`).join('') +
+    '</ul></section>').join('') + '</div>';
+}
+
+function sourceLine(ds) {
+  if (ds.how === 'fetch') return `Read from ${esc(ds.fileName)}`;
+  if (ds.how === 'picked') return `${esc(ds.fileName)}, selected by you`;
+  return `${esc(ds.fileName)}, saved copy from ${esc(fmtDate(ds.savedAt))}`;
+}
+
+function buildPanels() {
+  const host = $('#panels');
+  host.innerHTML = '';
+  for (const ds of state.datasets) {
+    const sec = document.createElement('section');
+    sec.className = 'panel';
+    sec.id = 'panel-' + ds.dom;
+    sec.setAttribute('role', 'tabpanel');
+    sec.setAttribute('aria-labelledby', 'tab-' + ds.dom);
+    sec.hidden = true;
+    sec.style.setProperty('--acc', ds.accent);
+    sec.dataset.hide = '0';
+    sec.innerHTML =
+      `<div class="ph"><div><h2>${esc(ds.title)}</h2>${ds.subtitle ? `<p class="sub">${esc(ds.subtitle)}</p>` : ''}` +
+      `<p class="meta"><span>${ds.groups} groups</span><span>${ds.entries} entries</span><span>${sourceLine(ds)}</span></p></div>` +
+      `<div class="ph-actions"><button class="btn" data-act="expand">Expand all</button><button class="btn" data-act="collapse">Collapse all</button><button class="btn" data-act="details">Hide details</button></div></div>` +
+      (ds.how === 'cache' ? `<p class="stale">Showing the copy saved in this browser. Changed the JSON files? <button class="link" data-act="openLoader">Select them again</button> to refresh.</p>` : '') +
+      (ds.problems.length ? `<p class="stale">${esc(ds.problems.join(' '))}</p>` : '') +
+      `<div class="tree"></div><div class="empty" hidden></div>${legendHTML(ds.legend)}`;
+    host.append(sec);
+  }
+}
+
+function renderTrees() {
+  const tokens = tokenize(state.query);
+  const searching = tokens.length > 0;
+  const hits = {};
+  for (const ds of state.datasets) {
+    hits[ds.dom] = searching ? countHits(ds.tree, tokens) : ds.entries;
+    const panel = $('#panel-' + ds.dom);
+    if (!panel) continue;
+    const view = searching ? filterNodes(ds.tree, tokens) : ds.tree.map((n) => ({ n, kids: 'all' }));
+    const wrap = $('.tree', panel);
+    wrap.innerHTML = view.length ? `<ul class="kids top">${view.map((v) => `<li class="top-node">${nodeHTML(v, ds, searching)}</li>`).join('')}</ul>` : '';
+    if (searching) highlight(wrap, tokens);
+    panel.dataset.hide = '0';
+    $('[data-act="details"]', panel).textContent = 'Hide details';
+  }
+  for (const ds of state.datasets) {
+    const tab = $('#tab-' + ds.dom), n = $(`[data-count="${ds.dom}"]`), panel = $('#panel-' + ds.dom);
+    if (!tab || !n || !panel) continue;
+    n.textContent = hits[ds.dom];
+    n.classList.toggle('hit', searching && hits[ds.dom] > 0);
+    tab.classList.toggle('zero', searching && hits[ds.dom] === 0);
+    tab.title = searching ? `${hits[ds.dom]} match${hits[ds.dom] === 1 ? '' : 'es'} in ${ds.title}` : '';
+    const empty = $('.empty', panel);
+    const others = state.datasets.filter((o) => o !== ds && hits[o.dom] > 0);
+    empty.innerHTML = others.length
+      ? `<p><strong>No matches in ${esc(ds.title)}.</strong> Found in: ${others.map((o) => `<button class="link" data-goto="${o.dom}">${esc(o.title)} (${hits[o.dom]})</button>`).join(', ')}</p>`
+      : `<p><strong>No matches for “${esc(state.query)}”.</strong> Try fewer or shorter words, for example “catalase” or “naked”.</p>`;
+    empty.hidden = !(searching && hits[ds.dom] === 0);
+  }
+  $('#qClear').hidden = !state.query;
+}
+
+function setActive(id) {
+  state.active = id;
+  const tabs = $$('.tab');
+  tabs.forEach((t) => { const on = t.dataset.tab === id; t.setAttribute('aria-selected', on ? 'true' : 'false'); t.tabIndex = on ? 0 : -1; });
+  if (!id && tabs.length) tabs[tabs.length - 1].tabIndex = 0;
+  $$('#panels > .panel').forEach((p) => { p.hidden = p.id !== 'panel-' + id; });
+  $('#readme').hidden = id !== 'readme';
+  try { if (id) history.replaceState(null, '', '#' + id); } catch { /* ignore */ }
+}
+function pickActive() {
+  const valid = new Set(['readme', ...state.datasets.map((d) => d.dom)]);
+  let h = '';
+  try { h = decodeURIComponent(location.hash.slice(1)); } catch { /* ignore */ }
+  if (state.active && valid.has(state.active)) return state.active;
+  if (valid.has(h)) return h;
+  return state.datasets.length ? state.datasets[0].dom : null;
+}
+
+function renderLoader() {
+  const el = $('#loader');
+  const bad = unresolved();
+  const need = state.datasets.length === 0 || bad.length > 0 || state.loaderOpen || state.pickMsgs.length > 0;
+  el.hidden = !need;
+  if (!need) { el.innerHTML = ''; return; }
+  const fromDisk = location.protocol === 'file:';
+  const title = state.datasets.length === 0 ? 'Choose the data files to start' : bad.length ? 'Some data files did not load' : 'Load or replace data files';
+  const why = fromDisk
+    ? 'This page was opened from disk, and browsers do not let a page read neighbouring files that way. Select the JSON files yourself, all three at once, or serve the folder over http (see below).'
+    : 'The page could not fetch every file. Check the file names and that they sit in the same folder as this page, or select them yourself.';
+  const expected = DATA_FILES.map((f) => {
+    const ds = state.datasets.find((d) => matchesFile(d, f));
+    if (ds) return `<li class="ok">${ic('check')}<span><code>${esc(f)}</code> <small>loaded${ds.how === 'cache' ? ' from the saved copy' : ds.how === 'picked' ? ' from your selection' : ''}</small></span></li>`;
+    const fail = state.failures.find((x) => x.file === f);
+    return `<li class="bad">${ic('alert')}<span><code>${esc(f)}</code> <small>${esc(fail ? fail.message : 'not loaded yet')}</small></span></li>`;
+  }).join('');
+  const extras = state.datasets.filter((d) => !DATA_FILES.some((f) => matchesFile(d, f)))
+    .map((d) => `<li class="ok">${ic('check')}<span><code>${esc(d.fileName)}</code> <small>loaded as “${esc(d.title)}”</small></span></li>`).join('');
+  el.innerHTML =
+    `<div class="lcard"><div class="lhead"><div><h2>${title}</h2><p>${why}</p></div>` +
+    (state.datasets.length ? `<button class="x" data-act="closeLoader" aria-label="Close this card">${ic('x')}</button>` : '') + '</div>' +
+    `<ul class="flist">${expected}${extras}</ul>` +
+    `<div class="drop" id="dropzone"><button class="btn primary" data-act="pick">${ic('upload')}Choose JSON files</button><span>or drop them anywhere on this page. Nothing is uploaded.</span></div>` +
+    (state.pickMsgs.length ? `<ul class="errs">${state.pickMsgs.map((m) => `<li>${esc(m)}</li>`).join('')}</ul>` : '') +
+    `<p class="hint">No clicking next time: run <code>python3 -m http.server 8000</code> in this folder (Windows: <code>py -m http.server 8000</code>) and open <code>http://localhost:8000/TAUMD_Micro_Trees.html</code>.` +
+    (cacheCount() ? ` <button class="link" data-act="forget">Forget the copy saved in this browser</button>` : '') + '</p></div>';
+}
+
+function renderStatus() {
+  const n = state.datasets.length, bad = unresolved().length;
+  const expected = Math.max(DATA_FILES.length, n);
+  const chip = $('#statusChip');
+  chip.className = 'chip ' + (state.booted ? (bad || !n ? 'warn' : 'ok') : '');
+  $('#statusText').textContent = state.booted ? `${n} of ${expected} data files loaded` : 'Reading data files…';
+}
+
+function renderLiveStatus() {
+  const how = { fetch: 'fetch() from this folder', picked: 'file you selected', cache: 'saved copy in this browser' };
+  const rows = state.datasets.map((d) =>
+    `<tr><td><code>${esc(d.fileName)}</code></td><td class="good">Loaded</td><td>${how[d.how]}${d.how === 'cache' ? ' (' + esc(fmtDate(d.savedAt)) + ')' : ''}</td>` +
+    `<td>${esc(d.title)}: ${d.groups} groups, ${d.entries} entries${d.problems.length ? '. Warnings: ' + esc(d.problems.join(' ')) : ''}</td></tr>`);
+  for (const f of unresolved()) rows.push(`<tr><td><code>${esc(f.file)}</code></td><td class="bad">Not loaded</td><td>fetch() from this folder</td><td>${esc(f.message)}</td></tr>`);
+  $('#liveStatus').innerHTML = state.booted
+    ? `<div class="tblwrap"><table class="tbl"><thead><tr><th>File</th><th>Result</th><th>Read via</th><th>Content</th></tr></thead><tbody>${rows.join('') || '<tr><td colspan="4">No files loaded yet.</td></tr>'}</tbody></table></div>` +
+      `<p><button class="btn" data-act="openLoader">${ic('upload')}Load files</button></p>`
+    : '<p>Reading data files…</p>';
+}
+
+function refreshAll() {
+  buildTabs();
+  buildPanels();
+  renderTrees();
+  renderLoader();
+  renderStatus();
+  renderLiveStatus();
+  setActive(pickActive());
+}
+
+/* ================================================================
+   7. EVENTS
+   ================================================================ */
+document.addEventListener('click', (e) => {
+  const t = e.target.closest('[data-act],[data-tab],[data-goto]');
+  if (!t) return;
+  if (t.dataset.tab || t.dataset.goto) { setActive(t.dataset.tab || t.dataset.goto); window.scrollTo(0, 0); return; }
+  const panel = t.closest('.panel');
+  switch (t.dataset.act) {
+    case 'expand': $$('details', panel).forEach((d) => { d.open = true; }); break;
+    case 'collapse': $$('details', panel).forEach((d) => { d.open = false; }); break;
+    case 'details': {
+      const hide = panel.dataset.hide !== '1';
+      panel.dataset.hide = hide ? '1' : '0';
+      if (hide) $$('details.b', panel).forEach((d) => { d.open = true; });
+      $$('details.l', panel).forEach((d) => { d.open = !hide; });
+      t.textContent = hide ? 'Show details' : 'Hide details';
+      break;
+    }
+    case 'pick': $('#fileInput').click(); break;
+    case 'openLoader': state.loaderOpen = true; renderLoader(); window.scrollTo(0, 0); break;
+    case 'closeLoader': state.loaderOpen = false; state.pickMsgs = []; renderLoader(); break;
+    case 'forget': cacheClear(); renderLoader(); break;
+    case 'status': setActive('readme'); { const s = $('#liveStatusHead'); if (s) s.scrollIntoView(); } break;
+  }
+});
+
+$('#fileInput').addEventListener('change', (e) => { const files = Array.from(e.target.files); e.target.value = ''; handleFiles(files); });
+
+$('#q').addEventListener('input', (e) => { state.query = e.target.value; renderTrees(); });
+$('#q').addEventListener('keydown', (e) => { if (e.key === 'Escape') { e.target.value = ''; state.query = ''; renderTrees(); } });
+$('#qClear').addEventListener('click', () => { const q = $('#q'); q.value = ''; state.query = ''; renderTrees(); q.focus(); });
+window.addEventListener('keydown', (e) => {
+  if (e.key === '/' && !e.metaKey && !e.ctrlKey && !e.altKey && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)) { e.preventDefault(); $('#q').focus(); }
+});
+
+$('#tabs').addEventListener('keydown', (e) => {
+  if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
+  const tabs = $$('.tab');
+  let i = tabs.indexOf(document.activeElement);
+  if (i < 0) return;
+  i = e.key === 'ArrowRight' ? (i + 1) % tabs.length : e.key === 'ArrowLeft' ? (i - 1 + tabs.length) % tabs.length : e.key === 'Home' ? 0 : tabs.length - 1;
+  tabs[i].focus();
+  setActive(tabs[i].dataset.tab);
+  e.preventDefault();
+});
+window.addEventListener('hashchange', () => {
+  let h = '';
+  try { h = decodeURIComponent(location.hash.slice(1)); } catch { /* ignore */ }
+  if (h === 'readme' || state.datasets.some((d) => d.dom === h)) setActive(h);
+});
+
+// Drag and drop JSON files anywhere on the page
+const hasFiles = (e) => e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files');
+window.addEventListener('dragover', (e) => { if (!hasFiles(e)) return; e.preventDefault(); document.body.classList.add('drag'); });
+window.addEventListener('dragleave', (e) => { if (e.relatedTarget === null) document.body.classList.remove('drag'); });
+window.addEventListener('drop', (e) => {
+  if (!hasFiles(e)) return;
+  e.preventDefault();
+  document.body.classList.remove('drag');
+  handleFiles(Array.from(e.dataTransfer.files));
+});
+
+// Open every branch before printing
+window.addEventListener('beforeprint', () => $$('details').forEach((d) => { d.open = true; }));
+
+/* ================================================================
+   8. START
+   ================================================================ */
+(async function boot() {
+  buildTabs();
+  renderStatus();
+  renderLiveStatus();
+  await Promise.all(DATA_FILES.map(loadViaFetch));
+  if (location.protocol === 'file:') loadFromCache();
+  state.booted = true;
+  refreshAll();
+})();
+})();
+</script>
+</body>
+</html>

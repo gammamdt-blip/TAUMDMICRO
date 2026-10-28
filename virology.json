@@ -1,0 +1,319 @@
+{
+  "schema": "taumd-tree/1",
+  "meta": {
+    "id": "virology",
+    "title": "Virology",
+    "subtitle": "USMLE virology master tree: genome, envelope, family",
+    "icon": "virus",
+    "accent": "#1f4a8a",
+    "order": 3,
+    "source": "TAUMD_Virology_Tree.html"
+  },
+  "legend": [
+    {
+      "title": "DNA virus rules (HHAPPPy)",
+      "tone": "blue",
+      "items": [
+        "All are **dsDNA** EXCEPT *Parvoviridae* (ssDNA).",
+        "All are **Linear** EXCEPT *Papilloma, Polyoma, Hepadna* (Circular).",
+        "All are **Icosahedral** EXCEPT *Poxviridae* (Complex).",
+        "All replicate in the **Nucleus** EXCEPT *Poxviridae* (Cytoplasm)."
+      ]
+    },
+    {
+      "title": "RNA virus rules",
+      "tone": "amber",
+      "items": [
+        "All are **ssRNA** EXCEPT *Reoviridae* (dsRNA).",
+        "All replicate in the **Cytoplasm** EXCEPT *Orthomyxoviridae* & *Retroviridae* (Nucleus).",
+        "Naked +ssRNA mnemonic: **PERCH** (Picornaviruses) & Calicivirus, Hepevirus.",
+        "All -ssRNA are **Enveloped** and have **Helical** capsids."
+      ]
+    }
+  ],
+  "tree": [
+    {
+      "name": "DNA Viruses",
+      "type": "category",
+      "color": "#1f4a8a",
+      "badges": [
+        "HHAPPPy"
+      ],
+      "children": [
+        {
+          "name": "Enveloped",
+          "type": "envelope-status",
+          "children": [
+            {
+              "name": "Double-Stranded (dsDNA)",
+              "type": "genome",
+              "children": [
+                {
+                  "name": "Herpesviridae",
+                  "type": "family",
+                  "badges": [
+                    "Linear",
+                    "Icosahedral",
+                    "Nuclear Repl."
+                  ],
+                  "notes": "HSV-1, HSV-2, VZV (HHV-3), EBV (HHV-4), CMV (HHV-5), HHV-6 (Roseola), HHV-8 (Kaposi)."
+                },
+                {
+                  "name": "Hepadnaviridae",
+                  "type": "family",
+                  "badges": [
+                    "Circular (Partial)",
+                    "Icosahedral",
+                    "RT enzyme"
+                  ],
+                  "notes": "HBV (Hepatitis B). Carries its own DNA-dependent DNA polymerase (Reverse Transcriptase)."
+                },
+                {
+                  "name": "Poxviridae",
+                  "type": "family",
+                  "badges": [
+                    "Linear",
+                    "Complex Capsid",
+                    "Cytoplasmic Repl."
+                  ],
+                  "notes": "Smallpox, Cowpox, Molluscum contagiosum. ONLY DNA virus to replicate in cytoplasm (carries DNA-dep RNA polymerase)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Non-Enveloped (Naked)",
+          "type": "envelope-status",
+          "children": [
+            {
+              "name": "Double-Stranded (dsDNA)",
+              "type": "genome",
+              "children": [
+                {
+                  "name": "Adenoviridae",
+                  "type": "family",
+                  "badges": [
+                    "Linear",
+                    "Icosahedral"
+                  ],
+                  "notes": "Adenovirus. Causes febrile pharyngitis, acute hemorrhagic cystitis, pneumonia, conjunctivitis."
+                },
+                {
+                  "name": "Papillomaviridae",
+                  "type": "family",
+                  "badges": [
+                    "Circular",
+                    "Icosahedral"
+                  ],
+                  "notes": "HPV (Warts, Cervical CA, CIN). E6 inhibits p53, E7 inhibits Rb."
+                },
+                {
+                  "name": "Polyomaviridae",
+                  "type": "family",
+                  "badges": [
+                    "Circular",
+                    "Icosahedral"
+                  ],
+                  "notes": "JC virus (PML in HIV), BK virus (transplant nephropathy)."
+                }
+              ]
+            },
+            {
+              "name": "Single-Stranded (ssDNA)",
+              "type": "genome",
+              "children": [
+                {
+                  "name": "Parvoviridae",
+                  "type": "family",
+                  "badges": [
+                    "Linear",
+                    "Icosahedral",
+                    "Smallest"
+                  ],
+                  "notes": "B19 virus. Erythema infectiosum (Fifth disease), aplastic crises in sickle cell, hydrops fetalis."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "RNA Viruses",
+      "type": "category",
+      "color": "#b4530c",
+      "children": [
+        {
+          "name": "Positive-Sense ssRNA (+ssRNA)",
+          "type": "genome",
+          "notes": "Genome can be directly translated by host ribosomes (infectious on its own).",
+          "children": [
+            {
+              "name": "Non-Enveloped (Naked)",
+              "type": "envelope-status",
+              "children": [
+                {
+                  "name": "Picornaviridae",
+                  "type": "family",
+                  "badges": [
+                    "Icosahedral",
+                    "PERCH"
+                  ],
+                  "notes": "Poliovirus, Echovirus, Rhinovirus (acid labile), Coxsackievirus, HAV. RNA translated into 1 large polypeptide cleaved by proteases."
+                },
+                {
+                  "name": "Hepeviridae",
+                  "type": "family",
+                  "badges": [
+                    "Icosahedral"
+                  ],
+                  "notes": "HEV (Hepatitis E). Enteric, high mortality in pregnant women."
+                },
+                {
+                  "name": "Caliciviridae",
+                  "type": "family",
+                  "badges": [
+                    "Icosahedral"
+                  ],
+                  "notes": "Norovirus (viral gastroenteritis outbreaks in cruises, daycares)."
+                }
+              ]
+            },
+            {
+              "name": "Enveloped",
+              "type": "envelope-status",
+              "children": [
+                {
+                  "name": "Flaviviridae",
+                  "type": "family",
+                  "badges": [
+                    "Icosahedral"
+                  ],
+                  "notes": "HCV, Yellow fever, Dengue, St. Louis encephalitis, West Nile virus, Zika."
+                },
+                {
+                  "name": "Togaviridae",
+                  "type": "family",
+                  "badges": [
+                    "Icosahedral"
+                  ],
+                  "notes": "Rubella, Western/Eastern equine encephalitis (WEE/EEE)."
+                },
+                {
+                  "name": "Retroviridae",
+                  "type": "family",
+                  "badges": [
+                    "Icosahedral/Conical",
+                    "Reverse Transcriptase",
+                    "Diploid"
+                  ],
+                  "notes": "HIV, HTLV. Contains 2 copies of +ssRNA. Replicates in Nucleus."
+                },
+                {
+                  "name": "Coronaviridae",
+                  "type": "family",
+                  "badges": [
+                    "Helical Capsid",
+                    "Largest RNA"
+                  ],
+                  "notes": "SARS-CoV, MERS-CoV, SARS-CoV-2, Common cold. Only +ssRNA with helical capsid."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Negative-Sense ssRNA (-ssRNA)",
+          "type": "genome",
+          "notes": "Must bring their own RNA-dependent RNA polymerase. ALL are enveloped and have helical capsids.",
+          "children": [
+            {
+              "name": "Enveloped (All)",
+              "type": "envelope-status",
+              "children": [
+                {
+                  "name": "Paramyxoviridae",
+                  "type": "family",
+                  "badges": [
+                    "Helical",
+                    "F-protein"
+                  ],
+                  "notes": "Measles, Mumps, RSV, Parainfluenza (Croup). All contain surface F (fusion) protein."
+                },
+                {
+                  "name": "Rhabdoviridae",
+                  "type": "family",
+                  "badges": [
+                    "Helical",
+                    "Bullet-shaped"
+                  ],
+                  "notes": "Rabies virus. Negri bodies in Purkinje cells/hippocampus."
+                },
+                {
+                  "name": "Filoviridae",
+                  "type": "family",
+                  "badges": [
+                    "Helical",
+                    "Pleomorphic"
+                  ],
+                  "notes": "Ebola, Marburg. Hemorrhagic fever, very high mortality."
+                },
+                {
+                  "name": "Orthomyxoviridae",
+                  "type": "family",
+                  "badges": [
+                    "Helical",
+                    "Segmented (8)",
+                    "Nuclear Repl."
+                  ],
+                  "notes": "Influenza virus (A, B, C). Undergoes reassortment (shift) and mutation (drift)."
+                },
+                {
+                  "name": "Bunyaviridae",
+                  "type": "family",
+                  "badges": [
+                    "Helical",
+                    "Segmented (3)"
+                  ],
+                  "notes": "Hantavirus (rodent urine), California encephalitis, Rift Valley fever."
+                },
+                {
+                  "name": "Arenaviridae",
+                  "type": "family",
+                  "badges": [
+                    "Helical",
+                    "Segmented (2)",
+                    "Ambisense"
+                  ],
+                  "notes": "LCMV, Lassa fever encephalitis. Sandy appearance on EM (host ribosomes)."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Double-Stranded RNA (dsRNA)",
+          "type": "genome",
+          "children": [
+            {
+              "name": "Non-Enveloped (Naked)",
+              "type": "envelope-status",
+              "children": [
+                {
+                  "name": "Reoviridae",
+                  "type": "family",
+                  "badges": [
+                    "Icosahedral",
+                    "Segmented (10-12)"
+                  ],
+                  "notes": "Rotavirus (fatal diarrhea in children), Colorado tick fever."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

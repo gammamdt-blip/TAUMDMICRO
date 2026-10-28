@@ -1,0 +1,505 @@
+{
+  "schema": "taumd-tree/1",
+  "meta": {
+    "id": "fungi",
+    "title": "Fungi",
+    "subtitle": "Medically important fungi: interactive high-yield review",
+    "icon": "fungus",
+    "accent": "#3b6b34",
+    "order": 2,
+    "source": "USMLE_Fungi_Tree.html"
+  },
+  "legend": [
+    {
+      "title": "Legend",
+      "items": [
+        {
+          "badge": "Dimorphic",
+          "tone": "purple",
+          "text": "Mold at 20 °C, yeast at 37 °C (Coccidioides forms spherules in tissue)"
+        },
+        "{buzzword|Yellow highlight} marks a high-yield buzzword."
+      ]
+    }
+  ],
+  "tree": [
+    {
+      "id": "root",
+      "name": "Kingdom Fungi (Medically Important)",
+      "type": "root",
+      "children": [
+        {
+          "id": "dimorphic",
+          "name": "Systemic Mycoses (Dimorphic)",
+          "type": "category",
+          "isExpanded": false,
+          "notes": "Mold in the cold (20°C), Yeast in the heat (37°C). Except Coccidioides (spherule in tissue). All can cause pneumonia and disseminate. Treat local infx with fluconazole/itraconazole, systemic with Amphotericin B.",
+          "children": [
+            {
+              "id": "histo",
+              "name": "Histoplasma capsulatum",
+              "type": "species",
+              "badges": [
+                {
+                  "text": "Systemic Mycoses",
+                  "tone": "blue"
+                },
+                {
+                  "text": "Dimorphic",
+                  "tone": "purple"
+                }
+              ],
+              "details": [
+                {
+                  "label": "Morphology and diagnostics",
+                  "text": "Macrophage filled with intracellular oval bodies. (Smaller than RBC)."
+                },
+                {
+                  "label": "Epidemiology and transmission",
+                  "text": "Mississippi and Ohio River valleys. Found in bird or bat droppings (caves/spelunking)."
+                },
+                {
+                  "label": "Clinical presentation",
+                  "list": [
+                    "Palatal/tongue ulcers.",
+                    "Hepatosplenomegaly (due to macrophage targeting).",
+                    "Pneumonia with hilar lymphadenopathy (can mimic TB).",
+                    "Erythema nodosum."
+                  ],
+                  "wide": true
+                },
+                {
+                  "label": "Treatment",
+                  "text": "Local: Fluconazole / Itraconazole. Systemic: Amphotericin B.",
+                  "wide": true
+                }
+              ]
+            },
+            {
+              "id": "blasto",
+              "name": "Blastomyces dermatitidis",
+              "type": "species",
+              "badges": [
+                {
+                  "text": "Systemic Mycoses",
+                  "tone": "blue"
+                },
+                {
+                  "text": "Dimorphic",
+                  "tone": "purple"
+                }
+              ],
+              "details": [
+                {
+                  "label": "Morphology and diagnostics",
+                  "text": "Broad-based budding yeast. (Same size as RBC)."
+                },
+                {
+                  "label": "Epidemiology and transmission",
+                  "text": "Eastern and Central US, Great Lakes region."
+                },
+                {
+                  "label": "Clinical presentation",
+                  "list": [
+                    "Inflammatory lung disease -> can disseminate to skin and bone.",
+                    "Verrucous skin lesions (can simulate squamous cell carcinoma).",
+                    "Granulomatous nodules."
+                  ],
+                  "wide": true
+                },
+                {
+                  "label": "Treatment",
+                  "text": "Local: Itraconazole. Systemic: Amphotericin B.",
+                  "wide": true
+                }
+              ]
+            },
+            {
+              "id": "cocci",
+              "name": "Coccidioides immitis",
+              "type": "species",
+              "badges": [
+                {
+                  "text": "Systemic Mycoses",
+                  "tone": "blue"
+                },
+                {
+                  "text": "Dimorphic",
+                  "tone": "purple"
+                }
+              ],
+              "details": [
+                {
+                  "label": "Morphology and diagnostics",
+                  "text": "Spherule filled with endospores in tissue (Not a yeast!). (Much larger than RBC)."
+                },
+                {
+                  "label": "Epidemiology and transmission",
+                  "text": "Southwestern US (California, Arizona). Associated with desert sand, earthquakes, dust storms."
+                },
+                {
+                  "label": "Clinical presentation",
+                  "list": [
+                    "Valley fever: arthralgias, erythema nodosum.",
+                    "Pneumonia and meningitis.",
+                    "Can disseminate to bone and skin."
+                  ],
+                  "wide": true
+                },
+                {
+                  "label": "Treatment",
+                  "text": "Local: Fluconazole / Itraconazole. Systemic: Amphotericin B.",
+                  "wide": true
+                }
+              ]
+            },
+            {
+              "id": "para",
+              "name": "Paracoccidioides brasiliensis",
+              "type": "species",
+              "badges": [
+                {
+                  "text": "Systemic Mycoses",
+                  "tone": "blue"
+                },
+                {
+                  "text": "Dimorphic",
+                  "tone": "purple"
+                }
+              ],
+              "details": [
+                {
+                  "label": "Morphology and diagnostics",
+                  "text": "Multiple budding yeast appearing as a {buzzword|'Captain's wheel'}. (Much larger than RBC)."
+                },
+                {
+                  "label": "Epidemiology and transmission",
+                  "text": "Latin America (especially Brazil). Affects males more than females."
+                },
+                {
+                  "label": "Clinical presentation",
+                  "list": [
+                    "Mucocutaneous ulcers.",
+                    "Cervical lymphadenopathy.",
+                    "Progressive lung disease."
+                  ],
+                  "wide": true
+                },
+                {
+                  "label": "Treatment",
+                  "text": "Local: Itraconazole. Systemic: Amphotericin B.",
+                  "wide": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "opportunistic",
+          "name": "Opportunistic Mycoses",
+          "type": "category",
+          "isExpanded": false,
+          "children": [
+            {
+              "id": "candida",
+              "name": "Candida albicans",
+              "type": "species",
+              "badges": [
+                {
+                  "text": "Opportunistic Mycoses",
+                  "tone": "blue"
+                }
+              ],
+              "details": [
+                {
+                  "label": "Morphology and diagnostics",
+                  "text": "Dimorphic exception: Forms {buzzword|pseudohyphae and budding yeasts at 20°C}, {buzzword|germ tubes at 37°C}."
+                },
+                {
+                  "label": "Epidemiology and transmission",
+                  "text": "Normal flora of GI tract, skin, and female genital tract."
+                },
+                {
+                  "label": "Clinical presentation",
+                  "list": [
+                    "Oral and esophageal thrush (immunocompromised, asthmatics using inhalers).",
+                    "Vulvovaginitis (diabetes, antibiotic use).",
+                    "Diaper rash.",
+                    "Endocarditis (IV drug users - tricuspid valve).",
+                    "Disseminated candidiasis (neutropenic patients)."
+                  ],
+                  "wide": true
+                },
+                {
+                  "label": "Treatment",
+                  "text": "Topical azole (vaginitis). Nystatin, fluconazole, caspofungin (oral/esophageal). Fluconazole, echinocandins, Amphotericin B (systemic).",
+                  "wide": true
+                }
+              ]
+            },
+            {
+              "id": "aspergillus",
+              "name": "Aspergillus fumigatus",
+              "type": "species",
+              "badges": [
+                {
+                  "text": "Opportunistic Mycoses",
+                  "tone": "blue"
+                }
+              ],
+              "details": [
+                {
+                  "label": "Morphology and diagnostics",
+                  "text": "Septate hyphae that branch at {buzzword|acute (45°) angles}. Not dimorphic."
+                },
+                {
+                  "label": "Epidemiology and transmission",
+                  "text": "Ubiquitous in environment. Produces aflatoxins (associated with hepatocellular carcinoma)."
+                },
+                {
+                  "label": "Clinical presentation",
+                  "list": [
+                    "Allergic bronchopulmonary aspergillosis (ABPA): Asthma/CF patients, bronchiectasis, eosinophilia.",
+                    "Aspergilloma: Fungus ball inside pre-existing lung cavities (e.g., after TB infection). Gravity dependent.",
+                    "Invasive aspergillosis: Immunocompromised (neutropenia, CGD). Invades blood vessels -> infarction."
+                  ],
+                  "wide": true
+                },
+                {
+                  "label": "Treatment",
+                  "text": "Voriconazole or echinocandins (1st line). Amphotericin B (2nd line).",
+                  "wide": true
+                }
+              ]
+            },
+            {
+              "id": "crypto",
+              "name": "Cryptococcus neoformans",
+              "type": "species",
+              "badges": [
+                {
+                  "text": "Opportunistic Mycoses",
+                  "tone": "blue"
+                }
+              ],
+              "details": [
+                {
+                  "label": "Morphology and diagnostics",
+                  "text": "Heavily encapsulated yeast. Not dimorphic. {buzzword|India ink (clear halo)} and {buzzword|Mucicarmine (red inner capsule)}."
+                },
+                {
+                  "label": "Epidemiology and transmission",
+                  "text": "Found in soil and pigeon droppings. Inhaled into lungs."
+                },
+                {
+                  "label": "Clinical presentation",
+                  "list": [
+                    "Cryptococcosis meningitis (major cause of death in HIV patients).",
+                    "Pneumonia.",
+                    "{buzzword|'Soap bubble' lesions} in brain MRI."
+                  ],
+                  "wide": true
+                },
+                {
+                  "label": "Treatment",
+                  "text": "Amphotericin B + Flucytosine, followed by Fluconazole for maintenance.",
+                  "wide": true
+                }
+              ]
+            },
+            {
+              "id": "mucor",
+              "name": "Mucor and Rhizopus spp.",
+              "type": "species",
+              "badges": [
+                {
+                  "text": "Opportunistic Mycoses",
+                  "tone": "blue"
+                }
+              ],
+              "details": [
+                {
+                  "label": "Morphology and diagnostics",
+                  "text": "Irregular, broad, nonseptate hyphae branching at {buzzword|wide (90°) angles}."
+                },
+                {
+                  "label": "Epidemiology and transmission",
+                  "text": "Ubiquitous environmental molds. Pathogenic primarily in ketoacidotic diabetic and neutropenic patients (fungi thrive in high glucose/acidic environment)."
+                },
+                {
+                  "label": "Clinical presentation",
+                  "list": [
+                    "Mucormycosis: Inhalation of spores -> fungi proliferate in blood vessel walls -> penetrate cribriform plate -> enter brain.",
+                    "Frontal lobe abscesses.",
+                    "Cavernous sinus thrombosis.",
+                    "{buzzword|Black necrotic eschar} on face/palate."
+                  ],
+                  "wide": true
+                },
+                {
+                  "label": "Treatment",
+                  "text": "Surgical debridement (urgent) + Amphotericin B.",
+                  "wide": true
+                }
+              ]
+            },
+            {
+              "id": "pneumo",
+              "name": "Pneumocystis jirovecii",
+              "type": "species",
+              "badges": [
+                {
+                  "text": "Opportunistic Mycoses",
+                  "tone": "blue"
+                }
+              ],
+              "details": [
+                {
+                  "label": "Morphology and diagnostics",
+                  "text": "Yeast-like fungus (originally classified as protozoan). {buzzword|Disc-shaped yeast on methenamine silver stain}. Lacks ergosterol."
+                },
+                {
+                  "label": "Epidemiology and transmission",
+                  "text": "Transmitted via respiratory route. Most infections asymptomatic unless immunocompromised (HIV CD4 < 200)."
+                },
+                {
+                  "label": "Clinical presentation",
+                  "list": [
+                    "Pneumocystis pneumonia (PCP): diffuse interstitial pneumonia.",
+                    "Bilateral 'ground-glass' opacities on chest imaging."
+                  ],
+                  "wide": true
+                },
+                {
+                  "label": "Treatment",
+                  "text": "TMP-SMX (prophylaxis and treatment). Pentamidine, dapsone, atovaquone as alternatives.",
+                  "wide": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "cutaneous",
+          "name": "Cutaneous & Subcutaneous",
+          "type": "category",
+          "isExpanded": false,
+          "children": [
+            {
+              "id": "dermatophytes",
+              "name": "Dermatophytes",
+              "type": "species",
+              "badges": [
+                {
+                  "text": "Cutaneous Mycoses",
+                  "tone": "blue"
+                }
+              ],
+              "details": [
+                {
+                  "label": "Morphology and diagnostics",
+                  "text": "Branching septate hyphae visible on KOH preparation with blue fungal stain."
+                },
+                {
+                  "label": "Epidemiology and transmission",
+                  "text": "Includes Microsporum, Trichophyton, and Epidermophyton."
+                },
+                {
+                  "label": "Clinical presentation",
+                  "list": [
+                    "Tinea capitis (head/scalp - alopecia).",
+                    "Tinea corporis (torso - ringworm).",
+                    "Tinea cruris (inguinal - jock itch).",
+                    "Tinea pedis (feet - athlete's foot).",
+                    "Tinea unguium (nails - onychomycosis)."
+                  ],
+                  "wide": true
+                },
+                {
+                  "label": "Treatment",
+                  "text": "Topical azoles (clotrimazole, miconazole). Terbinafine (nails). Griseofulvin (oral for severe/capitis).",
+                  "wide": true
+                }
+              ]
+            },
+            {
+              "id": "malassezia",
+              "name": "Malassezia furfur",
+              "type": "species",
+              "badges": [
+                {
+                  "text": "Cutaneous Mycoses",
+                  "tone": "blue"
+                }
+              ],
+              "details": [
+                {
+                  "label": "Morphology and diagnostics",
+                  "text": "{buzzword|'Spaghetti and meatballs' appearance} on KOH prep (spores and short hyphae)."
+                },
+                {
+                  "label": "Epidemiology and transmission",
+                  "text": "Part of normal skin flora. Degrades lipids."
+                },
+                {
+                  "label": "Clinical presentation",
+                  "list": [
+                    "Pityriasis (tinea) versicolor.",
+                    "Lipid degradation produces acids that damage melanocytes.",
+                    "Causes hypo- or hyperpigmented skin patches, typically on trunk and back.",
+                    "More common in hot, humid weather."
+                  ],
+                  "wide": true
+                },
+                {
+                  "label": "Treatment",
+                  "text": "Selenium sulfide topical (Selsun Blue). Topical/oral antifungals if severe.",
+                  "wide": true
+                }
+              ]
+            },
+            {
+              "id": "sporothrix",
+              "name": "Sporothrix schenckii",
+              "type": "species",
+              "badges": [
+                {
+                  "text": "Subcutaneous Mycoses",
+                  "tone": "blue"
+                },
+                {
+                  "text": "Dimorphic",
+                  "tone": "purple"
+                }
+              ],
+              "details": [
+                {
+                  "label": "Morphology and diagnostics",
+                  "text": "Dimorphic. {buzzword|Cigar-shaped budding yeast} at 37°C. Mold with hyphae and rosettes at 20°C."
+                },
+                {
+                  "label": "Epidemiology and transmission",
+                  "text": "Found on vegetation, sphagnum moss, rose thorns. Traumatic introduction."
+                },
+                {
+                  "label": "Clinical presentation",
+                  "list": [
+                    "Sporotrichosis ({buzzword|Rose gardener's disease}).",
+                    "Local pustule or ulcer with nodules along draining lymphatics (ascending lymphangitis).",
+                    "Rarely disseminates in immunocompetent hosts."
+                  ],
+                  "wide": true
+                },
+                {
+                  "label": "Treatment",
+                  "text": "Itraconazole or Potassium Iodide (KI). (Mnemonic: 'Plant a rose in the pot(assium) iodide').",
+                  "wide": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
